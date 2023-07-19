@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: NAME-hashfile-volume
+  namespace: default
+  labels:
+    app: NAME-nginx    
+    app.kubernetes.part-of: NAME-website
+spec:
+  storageClassName: local-path
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 16Mi
+      

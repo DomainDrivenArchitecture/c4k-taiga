@@ -1,0 +1,10 @@
+auth:
+- unique-name: "test.io"
+  username: "someuser"
+  authtoken: "abedjgbasdodj"
+- unique-name: "example.io"
+  username: "someuser"
+  authtoken: "abedjgbasdodj"
+mon-auth: 
+  grafana-cloud-user: "user"
+  grafana-cloud-password: "password"

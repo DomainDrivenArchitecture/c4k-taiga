@@ -1,0 +1,17 @@
+issuer: "staging"
+websites:
+- unique-name: "test.io" 
+  fqdns: ["test.de", "test.org", "www.test.de", "www.test.org"]
+  gitea-host: "gitlab.de"
+  gitea-repo: "repo"
+  branchname: "main"
+  sha256sum-output: "123456789ab123cd345de script-file-name.sh"
+- unique-name: "example.io"
+  fqdns: ["example.org", "www.example.com"]
+  gitea-host: "finegitehost.net"
+  gitea-repo: "repo"
+  branchname: "main"
+mon-cfg: 
+  grafana-cloud-url: "url-for-your-prom-remote-write-endpoint"
+  cluster-name: "jitsi"
+  cluster-stage: "test"

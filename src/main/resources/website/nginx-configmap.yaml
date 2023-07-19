@@ -1,0 +1,97 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: NAME-configmap
+  namespace: default
+  labels:
+    app.kubernetes.part-of: NAME-website
+data:
+  nginx.conf: |
+    user nginx;
+    worker_processes 3;
+    error_log /var/log/nginx/error.log;
+    pid /var/log/nginx/nginx.pid;
+    worker_rlimit_nofile 8192;
+    events {
+      worker_connections 4096;
+    }
+    http {
+      include /etc/nginx/mime.types;
+      default_type application/octet-stream;
+      log_format   main '$remote_addr - $remote_user [$time_local] $status'
+      '"$request" $body_bytes_sent "$http_referer"'
+      '"$http_user_agent" "$http_x_forwarded_for"';
+      access_log /var/log/nginx/access.log main;
+      sendfile on;
+      tcp_nopush on;
+      keepalive_timeout 65;
+      server_names_hash_bucket_size 128;
+      include /etc/nginx/conf.d/website.conf;
+    }
+  mime.types: |
+    types {
+      text/html                             html htm shtml;
+      text/css                              css;
+      text/xml                              xml rss;
+      image/gif                             gif;
+      image/jpeg                            jpeg jpg;
+      application/x-javascript              js;
+      text/plain                            txt;
+      text/x-component                      htc;
+      text/mathml                           mml;
+      image/svg+xml                         svg svgz;
+      image/png                             png;
+      image/x-icon                          ico;
+      image/x-jng                           jng;
+      image/vnd.wap.wbmp                    wbmp;
+      application/java-archive              jar war ear;
+      application/mac-binhex40              hqx;
+      application/pdf                       pdf;
+      application/x-cocoa                   cco;
+      application/x-java-archive-diff       jardiff;
+      application/x-java-jnlp-file          jnlp;
+      application/x-makeself                run;
+      application/x-perl                    pl pm;
+      application/x-pilot                   prc pdb;
+      application/x-rar-compressed          rar;
+      application/x-redhat-package-manager  rpm;
+      application/x-sea                     sea;
+      application/x-shockwave-flash         swf;
+      application/x-stuffit                 sit;
+      application/x-tcl                     tcl tk;
+      application/x-x509-ca-cert            der pem crt;
+      application/x-xpinstall               xpi;
+      application/zip                       zip;
+      application/octet-stream              deb;
+      application/octet-stream              bin exe dll;
+      application/octet-stream              dmg;
+      application/octet-stream              eot;
+      application/octet-stream              iso img;
+      application/octet-stream              msi msp msm;
+      audio/mpeg                            mp3;
+      audio/x-realaudio                     ra;
+      video/mpeg                            mpeg mpg;
+      video/quicktime                       mov;
+      video/x-flv                           flv;
+      video/x-msvideo                       avi;
+      video/x-ms-wmv                        wmv;
+      video/x-ms-asf                        asx asf;
+      video/x-mng                           mng;
+    }
+  website.conf: |
+    server {
+      listen 80 default_server;
+      listen [::]:80 default_server;
+      server_name FQDN
+      add_header Strict-Transport-Security 'max-age=31536000; includeSubDomains; preload';      
+      add_header X-Frame-Options "SAMEORIGIN";
+      add_header X-Content-Type-Options nosniff;
+      add_header Referrer-Policy "strict-origin";
+      # add_header Permissions-Policy "permissions here";
+      root /var/www/html/website/;
+      index index.html;
+      location / {
+        try_files $uri $uri/ /index.html =404;
+      }
+    }
+    
