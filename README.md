@@ -20,9 +20,8 @@ https://github.com/kaleidos-ventures/taiga-docker#session-cookies-in-django-admi
 
 ### **Docker Compose -> Kubernetes**
 
-compose -> kubernetes yaml
-Funktionieren yaml anchors in kubernetes?
-Ja, in der selben file.
+Wir müssen die compose-yamls nach kubernetes resources übersetzen.  
+Überlegung: yaml anchors funktionieren auch für kubernetes. Das könnten wir evtl zu unserem Vorteil nutzen.
 
 ### Für das init deployment
 
@@ -40,10 +39,7 @@ https://docs.djangoproject.com/en/4.2/ref/django-admin/#django-admin-createsuper
 Also DJANGO_SUPERUSER_TAIGAADMIN und DJANGO_SUPERUSER_PASSWORD
 sollten für den container gesetzt sein.
 
-Dann noch ein run befehl mit:
-python manage.py createsuperuser
-
-Vielleicht 
+Dann noch ein run befehl mit: python manage.py createsuperuser im init container unterbringen.
 
 ### Für das deployment
 
@@ -82,18 +78,6 @@ Vielleicht
 
 ## Try out
 
-Click on the image to try out in your browser:
-
-[![Try it out](doc/tryItOut.png "Try out yourself")](https://domaindrivenarchitecture.org/pages/dda-provision/c4k-taiga/)
-
-Your input will stay in your browser. No server interaction is required.
-
-You will also be able to try out on cli:
-```
-target/graalvm/c4k-taiga src/test/resources/taiga-test/valid-config.yaml src/test/resources/taiga-test/valid-auth.yaml | kubeval -
-target/graalvm/c4k-taiga src/test/resources/taiga-test/valid-config.yaml src/test/resources/taiga-test/valid-auth.yaml | kubectl apply -f -
-```
-
 
 ## Usage
 
@@ -118,7 +102,7 @@ Development happens at: https://repo.prod.meissa.de/meissa/c4k-taiga
 
 Mirrors are:
 
-* https://gitlab.com/domaindrivenarchitecture/c4k-website (issues and PR, CI)
+* https://gitlab.com/domaindrivenarchitecture/c4k-taiga (issues and PR, CI)
 
 For more details about our repository model see: https://repo.prod.meissa.de/meissa/federate-your-repos
 
