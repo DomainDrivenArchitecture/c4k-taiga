@@ -9,11 +9,72 @@
 https://github.com/kaleidos-ventures/taiga-docker
 https://community.taiga.io/t/taiga-30min-setup/170
 
-* Docker
-    * eigener image build, da eigene Konfiguration?
+Note: taiga-manage,-back und -async verwenden die gleichen img
+mit unterschiedlichen entry-points
+
+### HTTPS
+
+Terminiert am ingress. Wie interagiert das mit taiga?
+Eventuell wird dies hier relevant:
+https://github.com/kaleidos-ventures/taiga-docker#session-cookies-in-django-admin
+
+### **Docker Compose -> Kubernetes**
+
+compose -> kubernetes yaml
+Funktionieren yaml anchors in kubernetes?
+Ja, in der selben file.
+
+### Für das init deployment
+
+Reicht ein init-container im deployment?
+
+* taiga-manage
+
+Einen admin-user anlegen:
+https://github.com/kaleidos-ventures/taiga-docker#configure-an-admin-user
+
+folglich:
+
+https://docs.djangoproject.com/en/4.2/ref/django-admin/#django-admin-createsuperuser
+
+Also DJANGO_SUPERUSER_TAIGAADMIN und DJANGO_SUPERUSER_PASSWORD
+sollten für den container gesetzt sein.
+
+Dann noch ein run befehl mit:
+python manage.py createsuperuser
+
+Vielleicht 
+
+### Für das deployment
+
+* taiga-db
 * Postgres
-* Nginx
-    * Mit config
+* taiga-back
+* taiga-async
+* taiga-async-rabbitmq
+* taiga-front
+* taiga-events
+* taiga-events-rabbitmq
+* taiga-protected
+* taiga-gateway
+  * Nginx???
+  * ersetzen durch metallb und ingresse
+
+### **Volume Mounts**
+
+* taiga-static-data:
+* taiga-media-data:
+* taiga-db-data:
+* taiga-async-rabbitmq-data:
+* taiga-events-rabbitmq-data:
+
+### **Secrets**
+
+* admin user?
+* secret-key
+* db
+* email
+* rabbit-mq
 
 ## Purpose
 
