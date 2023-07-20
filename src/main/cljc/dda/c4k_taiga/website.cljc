@@ -13,60 +13,17 @@
    [dda.c4k-common.ingress :as ing]
    [clojure.string :as str]))
 
-(defn fqdn-list?
-  [input]
-  (every? true? (map pred/fqdn-string? input)))
-
-(s/def ::unique-name string?)
-(s/def ::sha256sum-output string?)
+; ToDo
 (s/def ::issuer pred/letsencrypt-issuer?)
-(s/def ::volume-size pred/integer-string?)
-(s/def ::authtoken pred/bash-env-string?)
-(s/def ::fqdns (s/coll-of pred/fqdn-string?))
-(s/def ::gitea-host pred/fqdn-string?)
-(s/def ::gitea-repo string?)
-(s/def ::branchname string?)
-(s/def ::username string?)
-(s/def ::build-cpu-request string?)
-(s/def ::build-memory-request string?)
-(s/def ::build-cpu-limit string?)
-(s/def ::build-memory-limit string?)
 
-(def websiteconfig? (s/keys :req-un [::unique-name
-                                     ::fqdns
-                                     ::gitea-host
-                                     ::gitea-repo
-                                     ::branchname]
-                            :opt-un [::issuer
-                                     ::volume-size
-                                     ::sha256sum-output
-                                     ::build-cpu-request
-                                     ::build-cpu-limit
-                                     ::build-memory-request
-                                     ::build-memory-limit]))
+; ToDo
+(def config? (s/keys :req-un 
+                            :opt-un ))
 
-(def websiteauth? (s/keys :req-un [::unique-name ::username ::authtoken]))
+; ToDo
+(def auth? (s/keys :req-un ))
 
-(s/def ::websites (s/coll-of websiteconfig?))
-
-(s/def ::auth (s/coll-of websiteauth?))
-
-(def websites? (s/keys :req-un [::websites]))
-
-(def auth? (s/keys :req-un [::auth]))
-
-(defn-spec get-hash-from-sha256sum-output string?
-  [sha256sum-output string?]
-  (if (nil? sha256sum-output)
-    nil
-    (first (str/split sha256sum-output #"\ +"))))
-
-(defn-spec get-file-name-from-sha256sum-output string?
-  [sha256sum-output string?]
-  (if (nil? sha256sum-output)
-    nil
-    (second (str/split (str/trim sha256sum-output) #"\ +"))))
-
+; ToDo
 (defn-spec replace-dots-by-minus string?
   [fqdn pred/fqdn-string?]
   (str/replace fqdn #"\." "-"))
