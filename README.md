@@ -43,6 +43,16 @@ Dann noch ein run befehl mit: python manage.py createsuperuser im init container
 
 ### Für das deployment
 
+taiga reads many values in config.py from env vars:
+https://github.com/kaleidos-ventures/taiga-back/blob/main/docker/config.py
+
+Good for postgres
+
+Mounting a configmap with a config.py as described here: https://docs.taiga.io/setup-production.html could be interesting. A mix of both env-vars and config.py in one container is not possible.
+
+An example for a config.py is given here:
+https://github.com/kaleidos-ventures/taiga-back/blob/main/settings/config.py.prod.example 
+
 * taiga-db
 * Postgres
 * taiga-back
