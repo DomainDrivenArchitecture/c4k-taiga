@@ -10,7 +10,7 @@ https://github.com/kaleidos-ventures/taiga-docker
 https://community.taiga.io/t/taiga-30min-setup/170
 
 Note: taiga-manage,-back und -async verwenden die gleichen docker images
-mit unterschiedlichen entry-points
+mit unterschiedlichen entry-points.
 
 ### HTTPS
 
@@ -37,7 +37,7 @@ folglich:
 https://docs.djangoproject.com/en/4.2/ref/django-admin/#django-admin-createsuperuser
 
 Also DJANGO_SUPERUSER_TAIGAADMIN und DJANGO_SUPERUSER_PASSWORD
-sollten für den container gesetzt sein.
+sollten für den Container gesetzt sein.
 
 Dann noch ein run befehl mit: python manage.py createsuperuser im init container unterbringen.
 
