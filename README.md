@@ -9,7 +9,7 @@
 https://github.com/kaleidos-ventures/taiga-docker
 https://community.taiga.io/t/taiga-30min-setup/170
 
-Note: taiga-manage,-back und -async verwenden die gleichen img
+Note: taiga-manage,-back und -async verwenden die gleichen docker images
 mit unterschiedlichen entry-points
 
 ### HTTPS
