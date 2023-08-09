@@ -14,7 +14,7 @@ spec:
       labels:
         app: taiga
     spec:
-      initContainers:
+      initContainers: # ToDo: add commands to create admin user
       - name: taiga-manage
         image: taigaio/taiga-back:latest
         imagePullPolicy: IfNotPresent
@@ -57,7 +57,7 @@ spec:
           value: 5432
         - name: CELERY_ENABLED
           value: false
-      containers:
+      containers: # ToDo: Research hostname, network and dependsOn keywords of docker compose and find functional translation for kubernetes
       - name: taiga-back
         image: taigaio/taiga-back:latest 
         imagePullPolicy: IfNotPresent
