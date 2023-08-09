@@ -14,6 +14,40 @@ spec:
       labels:
         app: taiga
     spec:
+      initContainers:
+      - name: taiga-manage
+        image: taigaio/taiga-back:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+        command: ["async_entrypoint.sh"]
+        volumeMounts:
+        - name: taiga-static
+          mountPath: /taiga-back/static
+          readOnly: false
+        - name: taiga-media
+          mountPath: /taiga-back/media
+          readOnly: false
+        env:
+        - name: POSTGRES_USER # ToDo: does taiga need a specific postgres version?
+          valueFrom: # ToDo: which env vars are needed by taiga-back and taiga-async
+            secretKeyRef: # ToDo: If all env vars are needed by taiga-back a config-map would be suitable
+              name: postgres-secret
+              key: postgres-user
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: postgres-password
+        - name: POSTGRES_DB
+          valueFrom:
+            configMapKeyRef:
+              name: postgres-config
+              key: postgres-db
+        - name: POSTGRES_HOST
+          value: "postgresql-service"
+        - name: POSTGRES_PORT
+          value: 5432
       containers:
       - name: taiga-back
         image: taigaio/taiga-back:latest 
