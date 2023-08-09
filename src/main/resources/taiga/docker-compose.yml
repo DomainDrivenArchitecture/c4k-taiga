@@ -20,8 +20,48 @@ spec:
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
-        env:
+        volumeMounts:
+        - name: taiga-static
+          mountPath: /taiga-back/static
+          readOnly: false
+        - name: taiga-media
+          mountPath: /taiga-back/media
+          readOnly: false
+        env: # Does every container need access to all env vars? 
           - name: POSTGRES_USER # does taiga need a specific postgres version?
+            valueFrom: # which env vars are needed by taiga-back and taiga-async
+              secretKeyRef: # ToDo: If all env vars are needed by taiga-back a config-map would be suitable
+                name: postgres-secret
+                key: postgres-user
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: postgres-secret
+                key: postgres-password
+          - name: POSTGRES_DB
+            valueFrom:
+              configMapKeyRef:
+                name: postgres-config
+                key: postgres-db
+          - name: POSTGRES_HOST
+            value: "postgresql-service"
+          - name: POSTGRES_PORT
+            value: 5432
+      - name: taiga-async
+        image: taigaio/taiga-back:latest 
+        imagePullPolicy: IfNotPresent
+        command: ["async_entrypoint.sh"]
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: taiga-static
+          mountPath: /taiga-back/static
+          readOnly: false
+        - name: taiga-media
+          mountPath: /taiga-back/media
+          readOnly: false
+        env: 
+          - name: POSTGRES_USER 
             valueFrom:
               secretKeyRef:
                 name: postgres-secret
@@ -40,16 +80,42 @@ spec:
             value: "postgresql-service"
           - name: POSTGRES_PORT
             value: 5432
-      - name: taiga-back
-      - name: taiga-async
       - name: taiga-async-rabbitmq
+        image: rabbitmq:3.8-management-alpine
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: taiga-async-rabbitmq-data
+          mountPath: /var/lib/rabbitmq
+          readOnly: false
+        env:
+        - name: RABBITMQ_ERLANG_COOKIE
+          value: ERLANG_COOKIE_VALUE
+        - name: RABBITMQ_DEFAULT_USER
+          value: RABBITMQ_USER
+        - name: RABBITMQ_DEFAULT_PASS
+          value: RABBITMQ_PASS
+        - name: RABBITMQ_DEFAULT_VHOST
+          value: RABBITMQ_VHOST
+        
       - name: taiga-front
       - name: taiga-events
       - name: taiga-events-rabbitmq
       - name: taiga-protected
 #     - name: taiga-gateway
-
-
+      initContainers:
+      - name:
+      volumes:
+        - name: taiga-static
+          persistentVolumeClaim:
+            claimName: taiga-static
+        - name: taiga-media
+          persistentVolumeClaim:
+            claimName: taiga-media
+        - name: taiga-async-rabbitmq-data
+          persistentVolumeClaim:
+            claimName: taiga-async-rabbitmq-data
 
 
 x-environment:
