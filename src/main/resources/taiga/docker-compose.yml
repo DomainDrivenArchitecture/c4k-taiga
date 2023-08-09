@@ -30,9 +30,11 @@ spec:
           readOnly: false
         envFrom:
         - configMapRef:
-            name: taiga-back-configmap
+          name: taiga-back-configmap
         - secretRef:
-            name: taiga-back-secret
+          name: taiga-back-secret
+        - secretRef:
+          name: taiga-rabbitmq-secret
         env:
         - name: POSTGRES_USER # ToDo: does taiga need a specific postgres version?
           valueFrom: # ToDo: which env vars are needed by taiga-back and taiga-async
