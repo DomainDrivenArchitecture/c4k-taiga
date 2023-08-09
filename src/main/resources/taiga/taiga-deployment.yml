@@ -20,7 +20,9 @@ spec:
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
-        command: ["async_entrypoint.sh"]
+        command: 
+        - python manage.py
+        - python manage.py createsuperuser
         volumeMounts:
         - name: taiga-static
           mountPath: /taiga-back/static
