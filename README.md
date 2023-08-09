@@ -4,13 +4,12 @@
 
 [<img src="https://domaindrivenarchitecture.org/img/delta-chat.svg" width=20 alt="DeltaChat"> chat over e-mail](mailto:buero@meissa-gmbh.de?subject=community-chat) | [<img src="https://meissa-gmbh.de/img/community/Mastodon_Logotype.svg" width=20 alt="team@social.meissa-gmbh.de"> team@social.meissa-gmbh.de](https://social.meissa-gmbh.de/@team) | [taiga & Blog](https://domaindrivenarchitecture.org)
 
-## Requirements
+## Configuration Issues
 
 https://github.com/kaleidos-ventures/taiga-docker
 https://community.taiga.io/t/taiga-30min-setup/170
 
-Note: taiga-manage,-back und -async verwenden die gleichen docker images
-mit unterschiedlichen entry-points.
+Note: taiga-manage,-back und -async verwenden die gleichen docker images mit unterschiedlichen entry-points.
 
 ### HTTPS
 
@@ -18,18 +17,16 @@ Terminiert am ingress. Wie interagiert das mit taiga?
 Eventuell wird dies hier relevant:
 https://github.com/kaleidos-ventures/taiga-docker#session-cookies-in-django-admin
 
-### **Docker Compose -> Kubernetes**
+### Docker Compose -> Kubernetes
 
 Wir müssen die compose-yamls nach kubernetes resources übersetzen.  
-Überlegung: yaml anchors funktionieren auch für kubernetes. Das könnten wir evtl zu unserem Vorteil nutzen.
 
 ### Für das init deployment
 
-Reicht ein init-container im deployment?
+Es gibt einen Init-Container mit namen *taiga-manage* im deployment.
+ToDo: Dieser erstellt einen Admin User mit credentials aus dem taiga-back-secret.
 
-* taiga-manage
-
-Einen admin-user anlegen:
+#### Einen admin-user anlegen:
 https://github.com/kaleidos-ventures/taiga-docker#configure-an-admin-user
 
 folglich:
@@ -44,7 +41,8 @@ Dann noch ein run befehl mit: python manage.py createsuperuser im init container
 ### deployment
 
 Taiga reads many values in config.py from env vars as can be seen in the taiga-back [config.py](
-https://github.com/kaleidos-ventures/taiga-back/blob/main/docker/config.py).
+https://github.com/kaleidos-ventures/taiga-back/blob/main/docker/config.py). These are read from configmaps and secrets 
+in the deployment.
 
 Mounting a configmap with a config.py as described here: https://docs.taiga.io/setup-production.html could be interesting. A mix of both env-vars and config.py in one container is not possible.
 
@@ -64,7 +62,7 @@ https://github.com/kaleidos-ventures/taiga-back/blob/main/settings/config.py.pro
   * Nginx???
   * ersetzen durch metallb und ingresse
 
-### **Volume Mounts**
+### Volume Mounts
 
 * taiga-static-data:
 * taiga-media-data:
@@ -72,7 +70,7 @@ https://github.com/kaleidos-ventures/taiga-back/blob/main/settings/config.py.pro
 * taiga-async-rabbitmq-data:
 * taiga-events-rabbitmq-data:
 
-### **Secrets**
+### Secrets
 
 * admin user?
 * secret-key
@@ -85,8 +83,8 @@ https://github.com/kaleidos-ventures/taiga-back/blob/main/settings/config.py.pro
 We need to know what the "hostname" KW does in docker compose.
 Then need to find a translation for this functionality to kubernetes.
 
-How do we direct traffic towards the frontend pod?
-Do we need to touch the frontend config regarding the address of the API?
+ToDo: How do we direct traffic towards the frontend pod? 
+Do we need to touch the frontend config regarding the default address (localhost:9000) of the API?
 
 ## Purpose
 
