@@ -23,3 +23,12 @@ data:
   # Telemetry settings
   ENABLE_TELEMETRY: ENABLE_TELEMETRY_VALUE
   # ...your customizations go here
+
+  # Taiga Events Settings
+  EVENTS_PUSH_BACKEND_URL: RABBITMQ_URL_VALUE
+  
+  # Taiga Rabbitmq Events Settings RABBITMQ_URL="amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@taiga-events-rabbitmq:5672/taiga"
+  RABBITMQ_URL: RABBITMQ_URL_VALUE
+
+  # Taiga Async Settings
+  CELERY_BROKER_URL: CELERY_URL_VALUE
