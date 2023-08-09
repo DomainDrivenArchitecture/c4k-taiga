@@ -75,6 +75,8 @@ spec:
             name: taiga-back-configmap
         - secretRef:
             name: taiga-back-secret
+        - secretRef:
+          name: taiga-rabbitmq-secret
         env: # ToDo: Does every container need access to all env vars? 
         - name: POSTGRES_USER # ToDo: does taiga need a specific postgres version?
           valueFrom: # ToDo: which env vars are needed by taiga-back and taiga-async
@@ -113,6 +115,8 @@ spec:
             name: taiga-back-configmap
         - secretRef:
             name: taiga-back-secret
+        - secretRef:
+          name: taiga-rabbitmq-secret
         env:
           - name: POSTGRES_USER 
             valueFrom:
