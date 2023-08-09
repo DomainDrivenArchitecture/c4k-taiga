@@ -53,6 +53,8 @@ spec:
           value: "postgresql-service"
         - name: POSTGRES_PORT
           value: 5432
+        - name: CELERY_ENABLED
+          value: false
       containers:
       - name: taiga-back
         image: taigaio/taiga-back:latest 
