@@ -61,26 +61,26 @@ spec:
         - name: taiga-media
           mountPath: /taiga-back/media
           readOnly: false
-        env: # Does every container need access to all env vars? 
-          - name: POSTGRES_USER # does taiga need a specific postgres version?
-            valueFrom: # which env vars are needed by taiga-back and taiga-async
-              secretKeyRef: # ToDo: If all env vars are needed by taiga-back a config-map would be suitable
-                name: postgres-secret
-                key: postgres-user
-          - name: POSTGRES_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: postgres-secret
-                key: postgres-password
-          - name: POSTGRES_DB
-            valueFrom:
-              configMapKeyRef:
-                name: postgres-config
-                key: postgres-db
-          - name: POSTGRES_HOST
-            value: "postgresql-service"
-          - name: POSTGRES_PORT
-            value: 5432
+        env: # ToDo: Does every container need access to all env vars? 
+        - name: POSTGRES_USER # ToDo: does taiga need a specific postgres version?
+          valueFrom: # ToDo: which env vars are needed by taiga-back and taiga-async
+            secretKeyRef: # ToDo: If all env vars are needed by taiga-back a config-map would be suitable
+              name: postgres-secret
+              key: postgres-user
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: postgres-password
+        - name: POSTGRES_DB
+          valueFrom:
+            configMapKeyRef:
+              name: postgres-config
+              key: postgres-db
+        - name: POSTGRES_HOST
+          value: "postgresql-service"
+        - name: POSTGRES_PORT
+          value: 5432
       - name: taiga-async
         image: taigaio/taiga-back:latest 
         imagePullPolicy: IfNotPresent
@@ -114,7 +114,7 @@ spec:
             value: "postgresql-service"
           - name: POSTGRES_PORT
             value: 5432
-      - name: taiga-async-rabbitmq
+      - name: taiga-async-rabbitmq  # ToDo: Rabbitmq uses a hostname KW in docker-compose. Whats the equivalent expression in kubernetes?
         image: rabbitmq:3.8-management-alpine
         imagePullPolicy: IfNotPresent
         ports:
