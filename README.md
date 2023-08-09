@@ -79,9 +79,18 @@ https://github.com/kaleidos-ventures/taiga-back/blob/main/settings/config.py.pro
 * rabbit-mq
 
 ### Networking
+https://github.com/compose-spec/compose-spec/blob/master/spec.md
 
-We need to know what the "hostname" KW does in docker compose.
-Then need to find a translation for this functionality to kubernetes.
+
+The `hostname` KW sets the hostname of a container.
+It should have no effect on the discoverability of the container in kubernetes.
+
+The `networks` KW defines the networks that service containers are attached to, referencing entries under the top-level networks key.
+This should be taken care of by our kubernetes installation.
+
+Taiga containers that need to reach other taiga containers:
+taiga-async -> taiga-async-rabbitmq
+taiga-events -> taiga-events-rabbitmq
 
 ToDo: How do we direct traffic towards the frontend pod? 
 Do we need to touch the frontend config regarding the default address (localhost:9000) of the API?
