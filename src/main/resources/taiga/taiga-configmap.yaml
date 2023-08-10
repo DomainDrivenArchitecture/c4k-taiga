@@ -25,9 +25,9 @@ data:
   # ...your customizations go here
 
   # Taiga Events Settings
-  EVENTS_PUSH_BACKEND_URL: RABBITMQ_URL_VALUE
+  # EVENTS_PUSH_BACKEND_URL: RABBITMQ_URL_VALUE
   ## Format RABBITMQ_URL="amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@taiga-events-rabbitmq:5672/taiga"
-  RABBITMQ_URL: RABBITMQ_URL_VALUE # found in https://github.com/kaleidos-ventures/taiga-events/blob/main/docker/env.template
+  # RABBITMQ_URL: RABBITMQ_URL_VALUE # found in https://github.com/kaleidos-ventures/taiga-events/blob/main/docker/env.template
 
   # Taiga Async Settings
-  CELERY_BROKER_URL: CELERY_URL_VALUE
+  # CELERY_BROKER_URL: CELERY_URL_VALUE
