@@ -21,7 +21,8 @@ spec:
         image: taigaio/taiga-back:latest
         imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 80
+        - name: http
+          containerPort: 80
         command: 
         - python manage.py && python manage.py createsuperuser
         volumeMounts:
