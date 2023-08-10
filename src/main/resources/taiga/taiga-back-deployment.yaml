@@ -22,8 +22,7 @@ spec:
         ports:
         - containerPort: 80
         command: 
-        - python manage.py
-        - python manage.py createsuperuser
+        - python manage.py && python manage.py createsuperuser
         volumeMounts:
         - name: taiga-static
           mountPath: /taiga-back/static
