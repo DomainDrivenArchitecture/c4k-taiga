@@ -20,10 +20,11 @@ spec:
         image: nginx:1.19-alpine
         imagePullPolicy: IfNotPresent
         ports:
+        - name: http
         - containerPort: 80 # ToDo: Check container ports everywhere
         volumeMounts:
         - mountPath: /etc/nginx/conf.d
-              name: taiga-configmap-volume
+              name: taiga-gateway-configmap
         - name: taiga-static
           mountPath: /taiga/static
           readOnly: false
@@ -31,10 +32,10 @@ spec:
           mountPath: /taiga/media
           readOnly: false
 
-      volumes: # ToDo: Are the volumes implemented correctly?
-        - name: taiga-configmap-volume
+      volumes: 
+        - name: taiga-gateway-configmap
           configMap:
-            name: taiga-gateway-configmap # ToDo: implement gateway configmap
+            name: taiga-gateway-configmap
         - name: taiga-static
           persistentVolumeClaim:
             claimName: taiga-static
