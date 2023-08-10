@@ -33,15 +33,6 @@ spec:
           value: RABBITMQ_VHOST
       
       volumes:
-        - name: taiga-static
-          persistentVolumeClaim:
-            claimName: taiga-static
-        - name: taiga-media
-          persistentVolumeClaim:
-            claimName: taiga-media
         - name: taiga-async-rabbitmq-data
           persistentVolumeClaim:
             claimName: taiga-async-rabbitmq-data
-        - name: taiga-events-rabbitmq-data
-          persistentVolumeClaim:
-            claimName: taiga-events-rabbitmq-data
