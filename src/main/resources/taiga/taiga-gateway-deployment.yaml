@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: taiga-gateway-deployment
+  labels:
+    app.kubernetes.part-of: c4k-taiga
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: taiga
+  template: 
+    metadata:
+      labels:
+        app: taiga
+    spec:
+      restartPolicy: Always
+      containers:
+      - name: taiga-gateway
+        image: nginx:1.19-alpine
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80 # ToDo: Check container ports everywhere
+        volumeMounts:
+        - mountPath: /etc/nginx/conf.d
+              name: taiga-configmap-volume
+        - name: taiga-static
+          mountPath: /taiga/static
+          readOnly: false
+        - name: taiga-media
+          mountPath: /taiga/media
+          readOnly: false
+
+      volumes: # ToDo: Are the volumes implemented correctly?
+        - name: taiga-configmap-volume
+          configMap:
+            name: taiga-gateway-configmap # ToDo: implement gateway configmap
+        - name: taiga-static
+          persistentVolumeClaim:
+            claimName: taiga-static
+        - name: taiga-media
+          persistentVolumeClaim:
+            claimName: taiga-media
