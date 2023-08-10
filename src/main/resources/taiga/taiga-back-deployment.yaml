@@ -67,7 +67,8 @@ spec:
         image: taigaio/taiga-back:latest 
         imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 80 # ToDo: Check container ports
+        - name: http
+          containerPort: 8000
         volumeMounts:
         - name: taiga-static
           mountPath: /taiga-back/static

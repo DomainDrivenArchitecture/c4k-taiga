@@ -19,7 +19,8 @@ spec:
         image: taigaio/taiga-protected:latest
         imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 80
+        - name: http
+          containerPort: 8003
         envFrom: # ToDo secret key ref - secret_key
         - secretRef:
           name: taiga-back-secret

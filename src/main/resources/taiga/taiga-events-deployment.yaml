@@ -19,7 +19,8 @@ spec:
         image: taigaio/taiga-events:latest
         imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 80
+        - name: http
+          containerPort: 8888
         envFrom: # ToDo: check if all vars are needed
         - configMapRef:
           name: taiga-back-configmap

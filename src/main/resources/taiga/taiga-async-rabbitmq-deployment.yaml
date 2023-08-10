@@ -19,7 +19,8 @@ spec:
         image: rabbitmq:3.8-management-alpine
         imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 80
+        - name: amqp
+          containerPort: 5672
         volumeMounts:
         - name: taiga-async-rabbitmq-data
           mountPath: /var/lib/rabbitmq

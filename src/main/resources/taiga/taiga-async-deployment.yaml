@@ -18,9 +18,10 @@ spec:
       - name: taiga-async
         image: taigaio/taiga-back:latest 
         imagePullPolicy: IfNotPresent
-        command: ["async_entrypoint.sh"]
+        command: ["async_entrypoint.sh"] # ToDo: Fix execution path
         ports:
-        - containerPort: 80
+        - name: http
+          containerPort: 8000
         volumeMounts:
         - name: taiga-static
           mountPath: /taiga-back/static

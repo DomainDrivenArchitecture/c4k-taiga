@@ -19,7 +19,8 @@ spec:
         image: taigaio/taiga-front:latest
         imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 80
+        - name: http
+          containerPort: 80
         env:
         - name: TAIGA_URL
           value: TAGA_SCHEME://TAIGA_DOMAIN
