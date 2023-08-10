@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: taiga-async-deployment
+  labels:
+    app.kubernetes.part-of: c4k-taiga
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: taiga
+  template: 
+    metadata:
+      labels:
+        app: taiga
+    spec:
+      ### taiga-async
+      - name: taiga-async
+        image: taigaio/taiga-back:latest 
+        imagePullPolicy: IfNotPresent
+        command: ["async_entrypoint.sh"]
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: taiga-static
+          mountPath: /taiga-back/static
+          readOnly: false
+        - name: taiga-media
+          mountPath: /taiga-back/media
+          readOnly: false
+        envFrom:
+        - configMapRef:
+            name: taiga-back-configmap
+        - secretRef:
+            name: taiga-back-secret
+        - secretRef:
+          name: taiga-rabbitmq-secret
+        env:
+          - name: POSTGRES_USER 
+            valueFrom:
+              secretKeyRef:
+                name: postgres-secret
+                key: postgres-user
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: postgres-secret
+                key: postgres-password
+          - name: POSTGRES_DB
+            valueFrom:
+              configMapKeyRef:
+                name: postgres-config
+                key: postgres-db
+          - name: POSTGRES_HOST
+            value: "postgresql-service"
+          - name: POSTGRES_PORT
+            value: 5432
+
+      volumes:
+        - name: taiga-static
+          persistentVolumeClaim:
+            claimName: taiga-static
+        - name: taiga-media
+          persistentVolumeClaim:
+            claimName: taiga-media
+        - name: taiga-async-rabbitmq-data
+          persistentVolumeClaim:
+            claimName: taiga-async-rabbitmq-data
+        - name: taiga-events-rabbitmq-data
+          persistentVolumeClaim:
+            claimName: taiga-events-rabbitmq-data

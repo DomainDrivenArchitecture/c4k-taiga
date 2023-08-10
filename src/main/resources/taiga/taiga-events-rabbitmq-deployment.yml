@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: taiga-events-rabbitmq-deployment
+  labels:
+    app.kubernetes.part-of: c4k-taiga
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: taiga
+  template: 
+    metadata:
+      labels:
+        app: taiga
+    spec:
+      - name: taiga-events-rabbitmq
+        image: rabbitmq:3.8-management-alpine
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: taiga-events-rabbitmq-data
+          mountPath: /var/lib/rabbitmq
+          readOnly: false
+        envFrom:
+        - secretRef: # ToDo secret key ref
+          name: taiga-rabbitmq-secret
+        env:
+        - name: RABBITMQ_ERLANG_COOKIE
+          value: ERLANG_COOKIE_VALUE
+        - name: RABBITMQ_DEFAULT_VHOST
+          value: RABBITMQ_VHOST
+      
+      volumes:
+        - name: taiga-static
+          persistentVolumeClaim:
+            claimName: taiga-static
+        - name: taiga-media
+          persistentVolumeClaim:
+            claimName: taiga-media
+        - name: taiga-async-rabbitmq-data
+          persistentVolumeClaim:
+            claimName: taiga-async-rabbitmq-data
+        - name: taiga-events-rabbitmq-data
+          persistentVolumeClaim:
+            claimName: taiga-events-rabbitmq-data

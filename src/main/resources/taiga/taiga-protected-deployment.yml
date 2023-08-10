@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: taiga-protected-deployment
+  labels:
+    app.kubernetes.part-of: c4k-taiga
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: taiga
+  template: 
+    metadata:
+      labels:
+        app: taiga
+    spec:
+      - name: taiga-protected
+        image: taigaio/taiga-protected:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+        envFrom: # ToDo secret key ref - secret_key
+        - secretRef:
+          name: taiga-back-secret
+        env:
+        - name: MAX_AGE
+          value: ATTACHMENTS_MAX_AGE
+#     - name: taiga-gateway # ToDo: How to replace the gateway in this setup?
+      
+      volumes:
+        - name: taiga-static
+          persistentVolumeClaim:
+            claimName: taiga-static
+        - name: taiga-media
+          persistentVolumeClaim:
+            claimName: taiga-media
+        - name: taiga-async-rabbitmq-data
+          persistentVolumeClaim:
+            claimName: taiga-async-rabbitmq-data
+        - name: taiga-events-rabbitmq-data
+          persistentVolumeClaim:
+            claimName: taiga-events-rabbitmq-data

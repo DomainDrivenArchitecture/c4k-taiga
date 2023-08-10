@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: taiga-events-deployment
+  labels:
+    app.kubernetes.part-of: c4k-taiga
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: taiga
+  template: 
+    metadata:
+      labels:
+        app: taiga
+    spec:
+      - name: taiga-events
+        image: taigaio/taiga-events:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+        envFrom: # ToDo: check if all vars are needed
+        - configMapRef:
+          name: taiga-back-configmap
+        - secretRef:
+          name: taiga-back-secret
+        - secretRef:
+          name: taiga-rabbitmq-secret
+      
+      volumes:
+        - name: taiga-static
+          persistentVolumeClaim:
+            claimName: taiga-static
+        - name: taiga-media
+          persistentVolumeClaim:
+            claimName: taiga-media
+        - name: taiga-async-rabbitmq-data
+          persistentVolumeClaim:
+            claimName: taiga-async-rabbitmq-data
+        - name: taiga-events-rabbitmq-data
+          persistentVolumeClaim:
+            claimName: taiga-events-rabbitmq-data

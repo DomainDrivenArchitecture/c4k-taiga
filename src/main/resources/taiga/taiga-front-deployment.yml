@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: taiga-front-deployment
+  labels:
+    app.kubernetes.part-of: c4k-taiga
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: taiga
+  template: 
+    metadata:
+      labels:
+        app: taiga
+    spec:
+      - name: taiga-front
+        image: taigaio/taiga-front:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+        env:
+        - name: TAIGA_URL
+          value: TAGA_SCHEME://TAIGA_DOMAIN
+        - name: TAIGA_WEBSOCKETS_URL
+          value: WEBSOCKETS_SCHEME://TAIGA_DOMAIN
+        - name: TAIGA_SUBPATH
+          value: SUBPATH
+      
+      volumes:
+        - name: taiga-static
+          persistentVolumeClaim:
+            claimName: taiga-static
+        - name: taiga-media
+          persistentVolumeClaim:
+            claimName: taiga-media
+        - name: taiga-async-rabbitmq-data
+          persistentVolumeClaim:
+            claimName: taiga-async-rabbitmq-data
+        - name: taiga-events-rabbitmq-data
+          persistentVolumeClaim:
+            claimName: taiga-events-rabbitmq-data
