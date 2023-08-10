@@ -1,0 +1,18 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: taiga-gateway-service
+  labels:
+    app.kubernetes.part-of: c4k-taiga
+    app.kubernetes.io/component: taiga-gateway
+  namespace: default
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/component: taiga-gateway
+  ports:
+    - name: http
+      targetPort: http
+      port: 80
+      protocol: TCP            
+      
