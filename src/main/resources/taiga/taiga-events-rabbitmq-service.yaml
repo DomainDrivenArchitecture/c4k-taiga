@@ -1,0 +1,18 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: taiga-events-rabbitmq-service
+  labels:
+    app.kubernetes.part-of: c4k-taiga
+    app.kubernetes.io/component: taiga-events-rabbitmq
+  namespace: default
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/component: taiga-events-rabbitmq
+  ports:
+    - name: amqp
+      targetPort: amqp
+      port: 5672
+      protocol: TCP            
+      
