@@ -4,6 +4,7 @@ metadata:
   name: taiga-events-deployment
   labels:
     app.kubernetes.part-of: c4k-taiga
+    app.kubernetes.io/component: taiga-events
 spec:
   replicas: 1
   selector:

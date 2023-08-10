@@ -1,0 +1,18 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: taiga-events-service
+  labels:
+    app.kubernetes.part-of: c4k-taiga
+    app.kubernetes.io/component: taiga-events
+  namespace: default
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/component: taiga-events
+  ports:
+    - name: http
+      targetPort: http
+      port: 8888
+      protocol: TCP            
+      
