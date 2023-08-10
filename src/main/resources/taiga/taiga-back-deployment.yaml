@@ -15,7 +15,6 @@ spec:
       labels:
         app: taiga
     spec:
-    #################### Init ########################
       initContainers:
       - name: taiga-manage
         image: taigaio/taiga-back:latest
@@ -41,8 +40,8 @@ spec:
           name: taiga-rabbitmq-secret
         env:
         - name: POSTGRES_USER # ToDo: Does taiga need a specific postgres version? Maybe test this
-          valueFrom: # ToDo: How do i reach a container from another container?
-            secretKeyRef: # ToDo: maybe generate container URLs at c4k level?
+          valueFrom:
+            secretKeyRef:
               name: postgres-secret
               key: postgres-user
         - name: POSTGRES_PASSWORD
@@ -61,9 +60,7 @@ spec:
           value: 5432
         - name: CELERY_ENABLED
           value: false
-      #################### Containers ########################
-      containers: # ToDo: Research dependsOn keyword of docker compose and find functional translation for kubernetes
-      ### taiga-back
+      containers:
       - name: taiga-back
         image: taigaio/taiga-back:latest 
         imagePullPolicy: IfNotPresent
