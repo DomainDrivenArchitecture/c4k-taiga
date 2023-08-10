@@ -24,7 +24,20 @@ spec:
         envFrom: # ToDo: check if all vars are needed
         - configMapRef:
           name: taiga-configmap
-        - secretRef:
-          name: taiga-secret
-        - secretRef:
-          name: taiga-rabbitmq-secret
+        env:
+        - name: RABBITMQ_USER
+          valueFrom:
+            secretKeyRef:
+              name: taiga-secret
+              key: RABBITMQ_USER
+        - name: RABBITMQ_PASS
+          valueFrom:
+            secretKeyRef:
+              name: taiga-secret
+              key: RABBITMQ_PASS
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: taiga-secret
+              key: TAIGA_SECRET_KEY
+

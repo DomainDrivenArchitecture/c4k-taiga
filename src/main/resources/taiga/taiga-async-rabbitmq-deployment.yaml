@@ -25,10 +25,17 @@ spec:
         - name: taiga-async-rabbitmq-data
           mountPath: /var/lib/rabbitmq
           readOnly: false
-        envFrom:
-        - secretRef:
-            name: taiga-rabbitmq-secret
         env:
+        - name: RABBITMQ_DEFAULT_USER
+          valueFrom:
+            secretKeyRef:
+              name: taiga-rabbitmq-secret
+              key: RABBITMQ_DEFAULT_USER
+        - name: RABBITMQ_DEFAULT_PASS
+          valueFrom:
+            secretKeyRef:
+              name: taiga-rabbitmq-secret
+              key: RABBITMQ_DEFAULT_PASS
         - name: RABBITMQ_ERLANG_COOKIE
           value: ERLANG_COOKIE_VALUE
         - name: RABBITMQ_DEFAULT_VHOST

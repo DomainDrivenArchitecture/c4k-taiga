@@ -25,14 +25,21 @@ spec:
         - name: taiga-events-rabbitmq-data
           mountPath: /var/lib/rabbitmq
           readOnly: false
-        envFrom:
-        - secretRef: # ToDo secret key ref
-          name: taiga-rabbitmq-secret
         env:
         - name: RABBITMQ_ERLANG_COOKIE
           value: ERLANG_COOKIE_VALUE
         - name: RABBITMQ_DEFAULT_VHOST
           value: RABBITMQ_VHOST
+        - name: RABBITMQ_USER
+          valueFrom:
+            secretKeyRef:
+              name: taiga-secret
+              key: RABBITMQ_USER
+        - name: RABBITMQ_PASS
+          valueFrom:
+            secretKeyRef:
+              name: taiga-secret
+              key: RABBITMQ_PASS
       
       volumes:
         - name: taiga-events-rabbitmq-data

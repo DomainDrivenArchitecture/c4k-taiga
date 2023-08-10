@@ -21,9 +21,11 @@ spec:
         ports:
         - name: http
           containerPort: 8003
-        envFrom: # ToDo secret key ref - secret_key
-        - secretRef:
-          name: taiga-secret
         env:
         - name: MAX_AGE
           value: ATTACHMENTS_MAX_AGE
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: taiga-secret
+              key: TAIGA_SECRET_KEY
