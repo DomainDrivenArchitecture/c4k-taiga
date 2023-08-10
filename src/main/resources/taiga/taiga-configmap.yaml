@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: taiga-back-configmap
+  name: taiga-configmap
   namespace: default
 data:
   # These environment variables will be used by taiga-back and taiga-async.
