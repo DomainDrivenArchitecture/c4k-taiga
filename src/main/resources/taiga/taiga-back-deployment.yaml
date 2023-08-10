@@ -4,6 +4,7 @@ metadata:
   name: taiga-back-deployment
   labels:
     app.kubernetes.part-of: c4k-taiga
+    app.kubernetes.io/component: taiga-back
 spec:
   replicas: 1
   selector:
