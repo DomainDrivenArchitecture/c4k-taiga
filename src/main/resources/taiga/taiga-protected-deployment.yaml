@@ -14,6 +14,7 @@ spec:
       labels:
         app: taiga
     spec:
+      containers:
       - name: taiga-protected
         image: taigaio/taiga-protected:latest
         imagePullPolicy: IfNotPresent

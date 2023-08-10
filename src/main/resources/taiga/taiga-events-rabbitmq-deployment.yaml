@@ -14,6 +14,7 @@ spec:
       labels:
         app: taiga
     spec:
+      containers:
       - name: taiga-events-rabbitmq
         image: rabbitmq:3.8-management-alpine
         imagePullPolicy: IfNotPresent
