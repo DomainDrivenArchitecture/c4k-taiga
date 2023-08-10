@@ -17,19 +17,48 @@ Terminiert am ingress. Wie interagiert das mit taiga?
 Eventuell wird dies hier relevant:
 https://github.com/kaleidos-ventures/taiga-docker#session-cookies-in-django-admin
 
-### Docker Compose -> Kubernetes
+### Docker Compose (DC) -> Kubernetes
 
-Wir müssen die compose-yamls nach kubernetes resources übersetzen.  
+We implemented a deployment and service in kubernetes for each DC Service.
+Configmaps and secrets were implemented, to avoid redundancy and readability also to increase security a bit.
+For all volumes described in DC we implemented PVCs and volume refs.
 
-### Für das init deployment
+A config.py (used for taiga-back ) was introduced for reference.
+A config.json (used for taiga-front ) was introduced for reference.
+NB: It might be necessary to actually map both from a config map to their respective locations in taiga-back and taiga-front. Description for that is [here](https://docs.taiga.io/setup-production.html).
+A mix of both env-vars and config.py in one container is not possible.
+
+#### depends_on
+
+We currently assume, that it will work without explicitly defining a startup order.
+
+#### DC Networking
+
+https://github.com/compose-spec/compose-spec/blob/master/spec.md
+
+The `hostname` KW sets the hostname of a container.
+It should have no effect on the discoverability of the container in kubernetes.
+
+The `networks` KW defines the networks that service containers are attached to, referencing entries under the top-level networks key.
+This should be taken care of by our kubernetes installation.
+
+#### Pod to Pod Possible Communications
+
+Taiga containers that need to reach other taiga containers:
+taiga-async -> taiga-async-rabbitmq
+taiga-events -> taiga-events-rabbitmq
+This is not quite clear, but probably solved with the implementation of services.
+
+### Init container
 
 Es gibt einen Init-Container mit namen *taiga-manage* im deployment.
-ToDo: Dieser erstellt einen Admin User mit credentials aus dem taiga-back-secret.
+Dieser erstellt einen Admin User mit credentials aus dem taiga-back-secret.
 
-#### Einen admin-user anlegen:
+#### Einen admin-user anlegen
+
 https://github.com/kaleidos-ventures/taiga-docker#configure-an-admin-user
 
-folglich:
+folglich:  
 
 https://docs.djangoproject.com/en/4.2/ref/django-admin/#django-admin-createsuperuser
 
@@ -38,62 +67,12 @@ sollten für den Container gesetzt sein.
 
 Dann noch ein run befehl mit: python manage.py createsuperuser im init container unterbringen.
 
-### deployment
+### Deployments
 
-Taiga reads many values in config.py from env vars as can be seen in the taiga-back [config.py](
-https://github.com/kaleidos-ventures/taiga-back/blob/main/docker/config.py). These are read from configmaps and secrets 
-in the deployment.
+Separate deployments exist for each of the taiga modules:
 
-Mounting a configmap with a config.py as described here: https://docs.taiga.io/setup-production.html could be interesting. A mix of both env-vars and config.py in one container is not possible.
-
-An example for a config.py is given here:
-https://github.com/kaleidos-ventures/taiga-back/blob/main/settings/config.py.prod.example 
-
-* taiga-db
-* Postgres
-* taiga-back
-* taiga-async
-* taiga-async-rabbitmq
-* taiga-front
-* taiga-events
-* taiga-events-rabbitmq
-* taiga-protected
-* taiga-gateway
-  * Nginx???
-  * ersetzen durch metallb und ingresse
-
-### Volume Mounts
-
-* taiga-static-data:
-* taiga-media-data:
-* taiga-db-data:
-* taiga-async-rabbitmq-data:
-* taiga-events-rabbitmq-data:
-
-### Secrets
-
-* admin user?
-* secret-key
-* db
-* email
-* rabbit-mq
-
-### Networking
-https://github.com/compose-spec/compose-spec/blob/master/spec.md
-
-
-The `hostname` KW sets the hostname of a container.
-It should have no effect on the discoverability of the container in kubernetes.
-
-The `networks` KW defines the networks that service containers are attached to, referencing entries under the top-level networks key.
-This should be taken care of by our kubernetes installation.
-
-Taiga containers that need to reach other taiga containers:
-taiga-async -> taiga-async-rabbitmq
-taiga-events -> taiga-events-rabbitmq
-
-ToDo: How do we direct traffic towards the frontend pod? 
-Do we need to touch the frontend config regarding the default address (localhost:9000) of the API?
+Taiga-back reads many values in config.py from env vars as can be seen in the taiga-back [config.py](
+https://github.com/kaleidos-ventures/taiga-back/blob/main/docker/config.py). These are read from configmaps and secrets in the deployment.
 
 ## Purpose
 
