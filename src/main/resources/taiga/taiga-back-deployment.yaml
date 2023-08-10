@@ -78,7 +78,7 @@ spec:
           readOnly: false
         envFrom:
         - configMapRef:
-            name: taiga-back-configmap # ToDo: Update configmap name
+            name: taiga-configmap
         - secretRef:
             name: taiga-back-secret
         - secretRef:

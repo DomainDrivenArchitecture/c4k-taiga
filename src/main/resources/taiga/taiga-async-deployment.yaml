@@ -31,7 +31,7 @@ spec:
           readOnly: false
         envFrom:
         - configMapRef:
-            name: taiga-back-configmap
+            name: taiga-configmap
         - secretRef:
             name: taiga-back-secret
         - secretRef:

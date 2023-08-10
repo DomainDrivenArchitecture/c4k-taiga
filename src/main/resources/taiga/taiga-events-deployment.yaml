@@ -23,7 +23,7 @@ spec:
           containerPort: 8888
         envFrom: # ToDo: check if all vars are needed
         - configMapRef:
-          name: taiga-back-configmap
+          name: taiga-configmap
         - secretRef:
           name: taiga-back-secret
         - secretRef:
