@@ -77,7 +77,7 @@ spec:
           readOnly: false
         envFrom:
         - configMapRef:
-            name: taiga-back-configmap
+            name: taiga-back-configmap # ToDo: Update configmap name
         - secretRef:
             name: taiga-back-secret
         - secretRef:
@@ -103,7 +103,7 @@ spec:
         - name: POSTGRES_PORT
           value: 5432
       
-      volumes:
+      volumes: # ToDo: Remove Volumes where not necessary
         - name: taiga-static
           persistentVolumeClaim:
             claimName: taiga-static
