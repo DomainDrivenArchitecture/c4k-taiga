@@ -4,6 +4,7 @@ metadata:
   name: taiga-async-deployment
   labels:
     app.kubernetes.part-of: c4k-taiga
+    app.kubernetes.io/component: taiga-async    
 spec:
   replicas: 1
   selector:
