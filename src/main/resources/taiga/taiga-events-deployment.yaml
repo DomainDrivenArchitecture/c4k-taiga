@@ -25,6 +25,6 @@ spec:
         - configMapRef:
           name: taiga-configmap
         - secretRef:
-          name: taiga-back-secret
+          name: taiga-secret
         - secretRef:
           name: taiga-rabbitmq-secret

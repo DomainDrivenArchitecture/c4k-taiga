@@ -23,7 +23,7 @@ spec:
           containerPort: 8003
         envFrom: # ToDo secret key ref - secret_key
         - secretRef:
-          name: taiga-back-secret
+          name: taiga-secret
         env:
         - name: MAX_AGE
           value: ATTACHMENTS_MAX_AGE
