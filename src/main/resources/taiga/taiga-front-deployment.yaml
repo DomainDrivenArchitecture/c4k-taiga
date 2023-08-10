@@ -4,6 +4,7 @@ metadata:
   name: taiga-front-deployment
   labels:
     app.kubernetes.part-of: c4k-taiga
+    app.kubernetes.io/component: taiga-front
 spec:
   replicas: 1
   selector:
