@@ -4,6 +4,7 @@ metadata:
   name: taiga-async-rabbitmq-deployment
   labels:
     app.kubernetes.part-of: c4k-taiga
+    app.kubernetes.io/component: taiga-async-rabbitmq
 spec:
   replicas: 1
   selector:
