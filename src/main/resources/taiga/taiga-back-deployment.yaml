@@ -15,11 +15,11 @@ spec:
       labels:
         app: taiga
     spec:
-      initContainers:
+      initContainers: # ToDo: this needs to run only once!
       - name: taiga-manage
         image: taigaio/taiga-back:latest
         imagePullPolicy: IfNotPresent
-        ports:
+        ports: # ToDo: we may need to check for the DB pod to be live
         - name: http
           containerPort: 80
         command: 

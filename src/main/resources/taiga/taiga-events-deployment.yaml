@@ -9,7 +9,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: taiga
+      app: taiga # ToDo: Check for consistent labels (maybe use app.kubernetes.io)
   template: 
     metadata:
       labels:
