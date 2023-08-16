@@ -23,11 +23,11 @@ spec:
         - name: http
           containerPort: 8888
         env:
-        - name: EVENTS_PUSH_BACKEND_URL # ToDo: check if we really need to set these URLs
-          valueFrom:
-            configMapKeyRef:
-              name: taiga-configmap
-              key: EVENTS_PUSH_BACKEND_URL
+        #- name: EVENTS_PUSH_BACKEND_URL # ToDo: check if we really need to set these URLs
+        #  valueFrom:
+        #    configMapKeyRef:
+        #      name: taiga-configmap
+        #      key: EVENTS_PUSH_BACKEND_URL
         - name: RABBITMQ_USER
           valueFrom:
             secretKeyRef:

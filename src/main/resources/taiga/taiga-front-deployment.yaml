@@ -24,8 +24,8 @@ spec:
           containerPort: 80
         env:
         - name: TAIGA_URL
-          value: TAGA_SCHEME://TAIGA_DOMAIN
+          value: https://jitsi.test.meissa.de
         - name: TAIGA_WEBSOCKETS_URL
-          value: WEBSOCKETS_SCHEME://TAIGA_DOMAIN
+          value: https://jitsi.test.meissa.de
         - name: TAIGA_SUBPATH
-          value: SUBPATH
+          value: ""

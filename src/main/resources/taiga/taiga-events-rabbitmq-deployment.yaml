@@ -28,9 +28,9 @@ spec:
           readOnly: false
         env:
         - name: RABBITMQ_ERLANG_COOKIE
-          value: ERLANG_COOKIE_VALUE
+          value: erlang-cookie-name
         - name: RABBITMQ_DEFAULT_VHOST
-          value: RABBITMQ_VHOST
+          value: taiga
         - name: RABBITMQ_USER
           valueFrom:
             secretKeyRef:

@@ -8,20 +8,20 @@ data:
   # Database settings handled in deployment
 
   # Taiga settings
-  TAIGA_SITES_SCHEME: TAIGA_SCHEME
-  TAIGA_SITES_DOMAIN: TAIGA_DOMAIN
-  TAIGA_SUBPATH: SUBPATH
+  TAIGA_SITES_SCHEME: https
+  TAIGA_SITES_DOMAIN: jitsi.test.meissa.de
+  TAIGA_SUBPATH: ""
 
   # Email settings.
-  EMAIL_BACKEND: EMAIL_BACKEND # django.core.mail.backends.${EMAIL_BACKEND}.EmailBackend # ToDo move to code base
-  DEFAULT_FROM_EMAIL: DEFAULT_FROM_EMAIL_VALUE
-  EMAIL_USE_TLS: EMAIL_USE_TLS_VALUE
-  EMAIL_USE_SSL: EMAIL_USE_SSL_VALUE
-  EMAIL_HOST: EMAIL_HOST_VALUE
-  EMAIL_PORT: EMAIL_PORT_VALUE
+  EMAIL_BACKEND: console # django.core.mail.backends.${EMAIL_BACKEND}.EmailBackend # ToDo move to code base
+  DEFAULT_FROM_EMAIL: meissa@meissa.de
+  EMAIL_USE_TLS: false
+  EMAIL_USE_SSL: false
+  EMAIL_HOST: smpt.meissa.de
+  EMAIL_PORT: 39
 
   # Telemetry settings
-  ENABLE_TELEMETRY: ENABLE_TELEMETRY_VALUE
+  ENABLE_TELEMETRY: false
   # ...your customizations go here
 
   # Taiga Events Settings

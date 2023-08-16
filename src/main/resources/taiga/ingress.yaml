@@ -12,16 +12,16 @@ metadata:
 spec:
   tls:
     - hosts:
-        - FQDN
+        - jitsi.test.meissa.de
       secretName: c4k-common-cert
   rules:
-    - host: FQDN
+    - host: jitsi.test.meissa.de
       http:
         paths:
           - pathType: Prefix
             path: "/"
             backend:
               service:
-                name: SERVICE_NAME
+                name: taiga-gateway-service
                 port:
                   number: 80

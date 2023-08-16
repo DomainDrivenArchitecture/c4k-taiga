@@ -5,9 +5,9 @@ metadata:
   labels:
     app: postgres
 spec:
-  storageClassName: REPLACEME
+  storageClassName: postgres
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: REPLACEME
+      storage: postgres
