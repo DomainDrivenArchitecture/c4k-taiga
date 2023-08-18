@@ -54,12 +54,12 @@ spec:
           - name: POSTGRES_HOST
             value: "postgresql-service"
           - name: POSTGRES_PORT
-            value: 5432
+            value: "5432"
 
       volumes:
         - name: taiga-static
           persistentVolumeClaim:
-            claimName: taiga-static
+            claimName: taiga-static-data
         - name: taiga-media
           persistentVolumeClaim:
-            claimName: taiga-media
+            claimName: taiga-media-data

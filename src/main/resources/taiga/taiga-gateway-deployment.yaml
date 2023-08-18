@@ -24,8 +24,8 @@ spec:
         - name: http
           containerPort: 80
         volumeMounts:
-        - mountPath: /etc/nginx/conf.d
-              name: taiga-gateway-configmap
+        - name: taiga-gateway-configmap
+          mountPath: /etc/nginx/conf.d          
         - name: taiga-static
           mountPath: /taiga/static
           readOnly: false
@@ -39,7 +39,7 @@ spec:
             name: taiga-gateway-configmap
         - name: taiga-static
           persistentVolumeClaim:
-            claimName: taiga-static
+            claimName: taiga-static-data
         - name: taiga-media
           persistentVolumeClaim:
-            claimName: taiga-media
+            claimName: taiga-media-data

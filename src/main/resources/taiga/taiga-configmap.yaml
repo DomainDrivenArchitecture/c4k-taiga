@@ -15,13 +15,13 @@ data:
   # Email settings.
   EMAIL_BACKEND: console # django.core.mail.backends.${EMAIL_BACKEND}.EmailBackend # ToDo move to code base
   DEFAULT_FROM_EMAIL: meissa@meissa.de
-  EMAIL_USE_TLS: false
-  EMAIL_USE_SSL: false
+  EMAIL_USE_TLS: "false"
+  EMAIL_USE_SSL: "false"
   EMAIL_HOST: smpt.meissa.de
-  EMAIL_PORT: 39
+  EMAIL_PORT: "39"
 
   # Telemetry settings
-  ENABLE_TELEMETRY: false
+  ENABLE_TELEMETRY: "false"
   # ...your customizations go here
 
   # Taiga Events Settings

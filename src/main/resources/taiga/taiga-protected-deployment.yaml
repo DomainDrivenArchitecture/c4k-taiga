@@ -24,7 +24,7 @@ spec:
           containerPort: 8003
         env:
         - name: MAX_AGE
-          value: 5
+          value: "5"
         - name: SECRET_KEY
           valueFrom:
             secretKeyRef:
