@@ -15,53 +15,9 @@ spec:
       labels:
         app: taiga
     spec:
-      initContainers: # ToDo: this needs to run only once!
-      - name: taiga-manage
-        image: taigaio/taiga-back:latest
-        imagePullPolicy: IfNotPresent
-        ports: # ToDo: we may need to check for the DB pod to be live
-        - name: http
-          containerPort: 80
-        command: 
-        - python manage.py && python manage.py createsuperuser
-        volumeMounts:
-        - name: taiga-static
-          mountPath: /taiga-back/static
-          readOnly: false
-        - name: taiga-media
-          mountPath: /taiga-back/media
-          readOnly: false
-        envFrom:
-        - configMapRef:
-            name: taiga-configmap
-        - secretRef:
-            name: taiga-secret
-        - secretRef:
-            name: taiga-rabbitmq-secret
-        env:
-        - name: POSTGRES_USER # ToDo: Does taiga need a specific postgres version? Maybe test this
-          valueFrom:
-            secretKeyRef:
-              name: postgres-secret
-              key: postgres-user
-        - name: POSTGRES_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: postgres-secret
-              key: postgres-password
-        - name: POSTGRES_DB
-          valueFrom:
-            configMapKeyRef:
-              name: postgres-config
-              key: postgres-db
-        - name: POSTGRES_HOST
-          value: "postgresql-service"
-        - name: POSTGRES_PORT
-          value: "5432"
-        - name: CELERY_ENABLED
-          value: "false"
       containers:
       - name: taiga-back
+        command: ["/taiga-back/entrypoint.sh"]
         image: taigaio/taiga-back:latest 
         imagePullPolicy: IfNotPresent
         ports:
