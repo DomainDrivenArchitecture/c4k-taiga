@@ -31,3 +31,4 @@ Get RABBITMQ_DEFAULT_VHOST from taiga-configmap in taiga-async-rabbitmq-deployme
 Move all values from taiga-rabbitmq-secret to taiga-secret
 Remove taiga-rabbitmq-secret from config
 Rename all occurrences of taiga-rabbitmq-secret to taiga-secret
+Add SESSION_COOKIE_SECURE: "False" and CSRF_COOKIE_SECURE: "False" to taiga-configmap.yaml
