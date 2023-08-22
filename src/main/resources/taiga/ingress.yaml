@@ -12,10 +12,10 @@ metadata:
 spec:
   tls:
     - hosts:
-        - jitsi.test.meissa.de
+        - taiga.test.meissa.de
       secretName: c4k-common-cert
   rules:
-    - host: jitsi.test.meissa.de
+    - host: taiga.test.meissa.de
       http:
         paths:
           - pathType: Prefix
