@@ -9,7 +9,7 @@ data:
 
   # Taiga settings
   TAIGA_SITES_SCHEME: https
-  TAIGA_SITES_DOMAIN: jitsi.test.meissa.de
+  TAIGA_SITES_DOMAIN: taiga.test.meissa.de
   TAIGA_SUBPATH: ""
 
   # Email settings.
@@ -31,3 +31,18 @@ data:
 
   # Taiga Async Settings
   # CELERY_BROKER_URL: CELERY_URL_VALUE
+
+  # Taiga Front Settings
+  TAIGA_URL: https://taiga.test.meissa.de
+  TAIGA_SUBPATH: ""
+  TAIGA_WEBSOCKETS_URL: wss://taiga.test.meissa.de
+  PUBLIC_REGISTER_ENABLED: "true"
+  CONTRIB_PLUGINS: ""
+  GITHUB_CLIENT_ID: ""
+  GITLAB_CLIENT_ID: ""
+  GITLAB_URL: ""
+  ENABLE_GITHUB_IMPORTER: "false"
+  ENABLE_JIRA_IMPORTER: "false"
+  ENABLE_TRELLO_IMPORTER: "false"
+
+
