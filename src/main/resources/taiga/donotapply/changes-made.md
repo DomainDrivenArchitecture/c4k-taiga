@@ -11,3 +11,7 @@ Change storageClassName to local-path in pvc.yaml
 Correct volume names in async, back, gateway
 Use service name as address in taiga-gateway-configmap.yaml
 Correct reference to taiga-configmap and taiga-secret in taiga-back-deployment
+Remove init-container in taiga-back-deployment
+Update command in taiga-back-deployment to ["/taiga-back/docker/entrypoint.sh"]
+Update command in taiga-back-deployment to command: ["/taiga-back/docker/entrypoint.sh && python manage.py createsupersuer"]
+Extend configmap in taiga-config map by values for taiga-front # we may want to check CAPITALIZATION of KW before starting work in c4k code
