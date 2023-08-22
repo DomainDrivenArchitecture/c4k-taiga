@@ -23,3 +23,11 @@ Change value of RABBITMQ_DEFAULT_USER in taiga-rabbitmq-secret.yaml to b64/encod
 Remove -service suffix from all taiga service names
 Remove -service suffix from all urls in taiga-gateway configmap
 Remove -service suffix from ingress
+Add - name: RABBITMQ_LOGS value: /opt/rabbitmq/logs.log in taiga-async-rabbitmq-deployment
+Get RABBITMQ_ERLANG_COOKIE from taiga-secret in taiga-events-rabbitmq-deployment
+Put RABBITMQ_DEFAULT_VHOST KV pair in taiga-configmap
+Get RABBITMQ_DEFAULT_VHOST from taiga-configmap in taiga-events-rabbitmq-deployment
+Get RABBITMQ_DEFAULT_VHOST from taiga-configmap in taiga-async-rabbitmq-deployment
+Move all values from taiga-rabbitmq-secret to taiga-secret
+Remove taiga-rabbitmq-secret from config
+Rename all occurrences of taiga-rabbitmq-secret to taiga-secret

@@ -32,17 +32,17 @@ spec:
         - name: RABBITMQ_DEFAULT_USER
           valueFrom:
             secretKeyRef:
-              name: taiga-rabbitmq-secret
+              name: taiga-secret
               key: RABBITMQ_DEFAULT_USER
         - name: RABBITMQ_DEFAULT_PASS
           valueFrom:
             secretKeyRef:
-              name: taiga-rabbitmq-secret
+              name: taiga-secret
               key: RABBITMQ_DEFAULT_PASS
         - name: RABBITMQ_ERLANG_COOKIE
           valueFrom:
             secretKeyRef:
-              name: taiga-rabbitmq-secret
+              name: taiga-secret
               key: RABBITMQ_ERLANG_COOKIE
         - name: RABBITMQ_DEFAULT_VHOST
           valueFrom:

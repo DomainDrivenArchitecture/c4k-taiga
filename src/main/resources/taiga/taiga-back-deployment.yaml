@@ -36,8 +36,6 @@ spec:
             name: taiga-configmap
         - secretRef:
             name: taiga-secret
-        - secretRef:
-            name: taiga-rabbitmq-secret
         env:
         - name: POSTGRES_USER
           valueFrom:
