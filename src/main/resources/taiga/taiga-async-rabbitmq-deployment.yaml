@@ -27,6 +27,8 @@ spec:
           mountPath: /var/lib/rabbitmq
           readOnly: false
         env:
+        - name: RABBITMQ_LOGS
+          value: /opt/rabbitmq/logs.log
         - name: RABBITMQ_DEFAULT_USER
           valueFrom:
             secretKeyRef:
@@ -43,7 +45,10 @@ spec:
               name: taiga-rabbitmq-secret
               key: RABBITMQ_ERLANG_COOKIE
         - name: RABBITMQ_DEFAULT_VHOST
-          value: taiga
+          valueFrom:
+            configMapKeyRef:
+              name: taiga-configmap
+              key: RABBITMQ_DEFAULT_VHOST
       
       volumes:
         - name: taiga-async-rabbitmq-data

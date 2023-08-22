@@ -45,4 +45,6 @@ data:
   ENABLE_JIRA_IMPORTER: "false"
   ENABLE_TRELLO_IMPORTER: "false"
 
+  # Rabbitmq settings
 
+  RABBITMQ_DEFAULT_VHOST: taiga
