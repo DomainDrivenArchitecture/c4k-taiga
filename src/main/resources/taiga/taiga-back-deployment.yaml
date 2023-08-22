@@ -17,7 +17,8 @@ spec:
     spec:
       containers:
       - name: taiga-back
-        command: ["/taiga-back/entrypoint.sh"]
+        command: 
+          - /taiga-back/docker/entrypoint.sh
         image: taigaio/taiga-back:latest 
         imagePullPolicy: IfNotPresent
         ports:
