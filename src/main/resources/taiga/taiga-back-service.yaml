@@ -1,7 +1,7 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: taiga-back-service
+  name: taiga-back
   labels:
     app.kubernetes.part-of: c4k-taiga
     app.kubernetes.io/component: taiga-back

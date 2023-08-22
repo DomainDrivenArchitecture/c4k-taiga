@@ -15,3 +15,11 @@ Remove init-container in taiga-back-deployment
 Update command in taiga-back-deployment to ["/taiga-back/docker/entrypoint.sh"]
 Update command in taiga-back-deployment to command: ["/taiga-back/docker/entrypoint.sh && python manage.py createsupersuer"]
 Extend configmap in taiga-config map by values for taiga-front # we may want to check CAPITALIZATION of KW before starting work in c4k code
+Rename taiga-async-rabbitmq-service to taiga-async-rabbitmq
+Move erlang cookie to taiga-rabbitmq-secret in taiga-async-rabbitmq-deployment
+Change value of RABBITMQ_DEFAULT_VHOST to taiga in taiga-async-rabbitmq-deployment
+Change value of RABBITMQ_USER in taiga-secret.yaml to b64/encode taiga
+Change value of RABBITMQ_DEFAULT_USER in taiga-rabbitmq-secret.yaml to b64/encode taiga
+Remove -service suffix from all taiga service names
+Remove -service suffix from all urls in taiga-gateway configmap
+Remove -service suffix from ingress

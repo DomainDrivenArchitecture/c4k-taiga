@@ -26,6 +26,7 @@ spec:
         volumeMounts:
         - name: taiga-gateway-configmap
           mountPath: /etc/nginx/conf.d          
+          readOnly: false
         - name: taiga-static
           mountPath: /taiga/static
           readOnly: false

@@ -38,9 +38,12 @@ spec:
               name: taiga-rabbitmq-secret
               key: RABBITMQ_DEFAULT_PASS
         - name: RABBITMQ_ERLANG_COOKIE
-          value: ERLANG_COOKIE_VALUE
+          valueFrom:
+            secretKeyRef:
+              name: taiga-rabbitmq-secret
+              key: RABBITMQ_ERLANG_COOKIE
         - name: RABBITMQ_DEFAULT_VHOST
-          value: RABBITMQ_VHOST
+          value: taiga
       
       volumes:
         - name: taiga-async-rabbitmq-data

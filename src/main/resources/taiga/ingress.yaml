@@ -22,6 +22,6 @@ spec:
             path: "/"
             backend:
               service:
-                name: taiga-gateway-service
+                name: taiga-gateway
                 port:
                   number: 80

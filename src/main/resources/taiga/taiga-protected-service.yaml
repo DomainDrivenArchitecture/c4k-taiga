@@ -1,7 +1,7 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: taiga-protected-service
+  name: taiga-protected
   labels:
     app.kubernetes.part-of: c4k-taiga
     app.kubernetes.io/component: taiga-protected
