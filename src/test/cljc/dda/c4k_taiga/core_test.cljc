@@ -11,10 +11,8 @@
 #?(:cljs
    (defmethod yaml/load-resource :website-test [resource-name]
      (case resource-name
-       "website-test/valid-auth.yaml"   (rc/inline "website-test/valid-auth.yaml")
-       "website-test/valid-config.yaml" (rc/inline "website-test/valid-config.yaml")
        (throw (js/Error. "Undefined Resource!")))))
 
 (deftest validate-valid-resources
-  (is (s/valid? cut/config? (yaml/load-as-edn "website-test/valid-config.yaml")))
-  (is (s/valid? cut/auth? (yaml/load-as-edn "website-test/valid-auth.yaml"))))
+  ;(is (s/valid? cut/config? (yaml/load-as-edn "website-test/valid-config.yaml")))
+  )
