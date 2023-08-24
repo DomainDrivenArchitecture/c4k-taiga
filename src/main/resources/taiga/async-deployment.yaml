@@ -4,13 +4,13 @@ metadata:
   name: taiga-async-deployment
   labels:
     app.kubernetes.part-of: c4k-taiga
-    app.kubernetes.io/component: taiga-async    
+    app.kubernetes.io/component: taiga-async
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: taiga
-  template: 
+  template:
     metadata:
       labels:
         app: taiga
@@ -55,7 +55,6 @@ spec:
             value: "postgresql-service"
           - name: POSTGRES_PORT
             value: "5432"
-
       volumes:
         - name: taiga-static
           persistentVolumeClaim:
