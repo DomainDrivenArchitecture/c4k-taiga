@@ -20,8 +20,8 @@
                     :dependencies [[dda/data-test "0.1.1"]]}
              :dev {:plugins [[lein-shell "0.5.0"]]}
              :uberjar {:aot :all
-                       :main dda.c4k-website.uberjar
-                       :uberjar-name "c4k-website-standalone.jar"
+                       :main dda.c4k-taiga.uberjar
+                       :uberjar-name "c4k-taiga-standalone.jar"
                        :dependencies [[org.clojure/tools.cli "1.0.214"]
                                       [ch.qos.logback/logback-classic "1.4.5"
                                        :exclusions [com.sun.mail/javax.mail]]
@@ -36,11 +36,11 @@
                       "native-image"
                       "--report-unsupported-elements-at-runtime"
                       "--initialize-at-build-time"
-                      "-jar" "target/uberjar/c4k-website-standalone.jar"
+                      "-jar" "target/uberjar/c4k-taiga-standalone.jar"
                       "-H:ResourceConfigurationFiles=graalvm-resource-config.json"
                       "-H:Log=registerResource"
                       "-H:Name=target/graalvm/${:name}"]
             "inst" ["shell"
                     "sh"
                     "-c"
-                    "lein uberjar && sudo install -m=755 target/uberjar/c4k-website-standalone.jar /usr/local/bin/c4k-website-standalone.jar"]})
+                    "lein uberjar && sudo install -m=755 target/uberjar/c4k-taiga-standalone.jar /usr/local/bin/c4k-taiga-standalone.jar"]})

@@ -16,11 +16,11 @@
 (s/def ::mon-auth ::mon/mon-auth)
 
 ; ToDo
-(def config? (s/keys :req-un 
+(def config? (s/keys :req-un []
                      :opt-un [::mon-cfg]))
 
 ; ToDo
-(def auth? (s/keys :req-un 
+(def auth? (s/keys :req-un []
                    :opt-un [::mon-auth]))
 
 ; ToDo:
