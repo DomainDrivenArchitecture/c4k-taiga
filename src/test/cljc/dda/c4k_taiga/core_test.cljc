@@ -1,4 +1,4 @@
-(ns dda.c4k-website.core-test
+(ns dda.c4k-taiga.core-test
   (:require
    #?(:cljs [shadow.resource :as rc])
    #?(:clj [clojure.test :refer [deftest is are testing run-tests]]
