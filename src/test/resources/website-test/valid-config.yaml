@@ -3,8 +3,10 @@ fqdn: "taiga.test.meissa.de"
 public-register-enabled: "false"
 enable-telemetry: "false"
 storage-class-name: "local-path"
-storage-media-size: "20"
-storage-static-size: "20"
+storage-media-size: 20
+storage-static-size: 20
+storage-async-rabbitmq-size: 20
+storage-events-rabbitmq-size: 20
 mon-cfg: 
   grafana-cloud-url: "url-for-your-prom-remote-write-endpoint"
   cluster-name: "jitsi"
