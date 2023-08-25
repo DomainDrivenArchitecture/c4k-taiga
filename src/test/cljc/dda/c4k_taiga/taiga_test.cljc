@@ -8,7 +8,7 @@
    [dda.c4k-taiga.taiga :as cut]))
 
 #?(:cljs
-   (defmethod yaml/load-resource :website-test [resource-name]
+   (defmethod yaml/load-resource :taiga-test [resource-name]
      (case resource-name
        "taiga-test/valid-config.yaml" (rc/inline "taiga-test/valid-config.yaml")
        "taiga-test/valid-auth.yaml" (rc/inline "taiga-test/valid-auth.yaml")
