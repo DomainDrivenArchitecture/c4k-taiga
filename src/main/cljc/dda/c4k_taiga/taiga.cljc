@@ -124,9 +124,13 @@
 
 (defn-spec generate-configmap cp/map-or-seq? 
   [config config?]
-  (let [{:keys [fqdn]} config]
-    (-> (yaml/load-as-edn "taiga/configmap.yaml")
-        (cm/replace-all-matching-values-by-new-value "FQDN" fqdn))))
+  (let [{:keys [fqdn enable-telemetry public-register-enabled]} (merge config-defaults config)]
+    (-> (yaml/load-as-edn "taiga/configmap.yaml")        
+        (cm/replace-key-value :TAIGA_SITES_DOMAIN fqdn)
+        (cm/replace-key-value :TAIGA_URL (str "https://" fqdn))
+        (cm/replace-key-value :TAIGA_WEBSOCKETS_URL (str "wss://" fqdn))
+        (cm/replace-key-value :ENABLE_TELEMETRY enable-telemetry)
+        (cm/replace-key-value :PUBLIC_REGISTER_ENABLED public-register-enabled))))
 
 (defn-spec generate-async-service cp/map-or-seq? []
   (yaml/from-string (yaml/load-resource "taiga/async-service.yaml")))
@@ -151,11 +155,19 @@
 
 (defn-spec generate-pvc-taiga-media-data cp/map-or-seq? 
   [config config?]
-  (yaml/from-string (yaml/load-resource "taiga/pvc-taiga-media-data.yaml")))
+  (let [{:keys [storage-class-name storage-media-size]} (merge config-defaults config)]
+    (->
+     (yaml/from-string (yaml/load-resource "taiga/pvc-taiga-media-data.yaml"))
+     (assoc-in [:spec :storageClassName] storage-class-name)
+     (assoc-in [:spec :resources :requests :storage] (str storage-media-size "Gi")))))
 
 (defn-spec generate-pvc-taiga-static-data cp/map-or-seq?
   [config config?]
-  (yaml/from-string (yaml/load-resource "taiga/pvc-taiga-static-data.yaml")))
+  (let [{:keys [storage-class-name storage-static-size]} (merge config-defaults config)]
+    (->
+     (yaml/from-string (yaml/load-resource "taiga/pvc-taiga-static-data.yaml"))
+     (assoc-in [:spec :storageClassName] storage-class-name)
+     (assoc-in [:spec :resources :requests :storage] (str storage-static-size "Gi")))))
 
 (defn-spec generate-async-rabbitmq-deployment cp/map-or-seq? []
   (yaml/from-string (yaml/load-resource "taiga/async-rabbitmq-deployment.yaml")))
@@ -163,9 +175,23 @@
 (defn-spec generate-protected-service cp/map-or-seq? []
   (yaml/from-string (yaml/load-resource "taiga/protected-service.yaml")))
 
-(defn-spec generate-secret cp/map-or-seq? 
+(defn-spec generate-secret cp/map-or-seq?
   [auth auth?]
-  (yaml/from-string (yaml/load-resource "taiga/secret.yaml")))
+  (let [{:keys [taiga-secret-key
+                mailer-user mailer-pw
+                rabbitmq-user rabbitmq-pw rabbitmq-erlang-cookie
+                django-superuser-username django-superuser-password django-superuser-email]} auth]
+    (->
+     (yaml/from-string (yaml/load-resource "taiga/secret.yaml"))
+     (cm/replace-key-value :TAIGA_SECRET_KEY (b64/encode taiga-secret-key))
+     (cm/replace-key-value :EMAIL_HOST_USER (b64/encode mailer-user))
+     (cm/replace-key-value :EMAIL_HOST_PASSWORD (b64/encode mailer-pw))
+     (cm/replace-key-value :RABBITMQ_USER (b64/encode rabbitmq-user))
+     (cm/replace-key-value :RABBITMQ_PASS (b64/encode rabbitmq-pw))
+     (cm/replace-key-value :RABBITMQ_ERLANG_COOKIE (b64/encode rabbitmq-erlang-cookie))
+     (cm/replace-key-value :DJANGO_SUPERUSER_USERNAME (b64/encode django-superuser-username))
+     (cm/replace-key-value :DJANGO_SUPERUSER_PASSWORD (b64/encode django-superuser-password))
+     (cm/replace-key-value :DJANGO_SUPERUSER_EMAIL (b64/encode django-superuser-email)))))
 
 (defn-spec generate-async-rabbitmq-service cp/map-or-seq? []
   (yaml/from-string (yaml/load-resource "taiga/async-rabbitmq-service.yaml")))
@@ -181,9 +207,17 @@
 
 (defn-spec generate-rabbitmq-pvc-async cp/map-or-seq? 
   [config config?]
-  (yaml/from-string (yaml/load-resource "taiga/rabbitmq-pvc-async.yaml")))
+  (let [{:keys [storage-class-name storage-async-rabbitmq-size]} (merge config-defaults config)]
+    (->
+     (yaml/from-string (yaml/load-resource "taiga/rabbitmq-pvc-async.yaml"))
+     (assoc-in [:spec :storageClassName] storage-class-name)
+     (assoc-in [:spec :resources :requests :storage] (str storage-async-rabbitmq-size "Gi")))))
 
 (defn-spec generate-rabbitmq-pvc-events cp/map-or-seq?
   [config config?]
-  (yaml/from-string (yaml/load-resource "taiga/rabbitmq-pvc-events.yaml")))
+  (let [{:keys [storage-class-name storage-events-rabbitmq-size]} (merge config-defaults config)]
+    (-> 
+     (yaml/from-string (yaml/load-resource "taiga/rabbitmq-pvc-events.yaml"))
+     (assoc-in [:spec :storageClassName] storage-class-name)
+     (assoc-in [:spec :resources :requests :storage] (str storage-events-rabbitmq-size "Gi")))))
 
