@@ -28,7 +28,7 @@
 
 (s/def ::mon-cfg ::mon/mon-cfg)
 (s/def ::mon-auth ::mon/mon-auth)
-(s/def ::taiga-secret cp/bash-env-string?)
+(s/def ::taiga-secret-key cp/bash-env-string?)
 (s/def ::mailer-user string?)
 (s/def ::mailer-pw string?)
 (s/def ::django-superuser-username string?)
@@ -50,7 +50,7 @@
 
 (def auth? (s/keys :req-un [::postgres/postgres-db-user 
                             ::postgres/postgres-db-password
-                            ::taiga-secret
+                            ::taiga-secret-key
                             ::mailer-pw
                             ::mailer-user
                             ::django-superuser-email
@@ -88,7 +88,8 @@
        "taiga/front-deployment.yaml"                  (rc/inline "taiga/front-deployment.yaml")
        "taiga/front-service.yaml"                     (rc/inline "taiga/front-service.yaml")
        "taiga/gateway-service.yaml"                   (rc/inline "taiga/gateway-service.yaml")
-       "taiga/data-pvcs.yaml"                         (rc/inline "taiga/data-pvcs.yaml")
+       "taiga/pvc-taiga-media-data.yaml"              (rc/inline "taiga/pvc-taiga-media-data.yaml")
+       "taiga/pvc-taiga-static-data.yaml"             (rc/inline "taiga/pvc-taiga-static-data.yaml")
        "taiga/async-rabbitmq-deployment.yaml"         (rc/inline "taiga/async-rabbitmq-deployment.yaml")
        "taiga/protected-service.yaml"                 (rc/inline "taiga/protected-service.yaml")
        "taiga/secret.yaml"                            (rc/inline "taiga/secret.yaml")
@@ -96,7 +97,8 @@
        "taiga/events-service.yaml"                    (rc/inline "taiga/events-service.yaml")
        "taiga/back-service.yaml"                      (rc/inline "taiga/back-service.yaml")
        "taiga/events-rabbitmq-service.yaml"           (rc/inline "taiga/events-rabbitmq-service.yaml")
-       "taiga/rabbitmq-pvc.yaml"                      (rc/inline "taiga/rabbitmq-pvc.yaml")
+       "taiga/rabbitmq-pvc-async.yaml"                (rc/inline "taiga/rabbitmq-pvc-async.yaml")
+       "taiga/rabbitmq-pvc-events.yaml"               (rc/inline "taiga/rabbitmq-pvc-events.yaml")
        (throw (js/Error. "Undefined Resource!")))))
 
 (defn-spec generate-ingress-and-cert cp/map-or-seq?
@@ -107,7 +109,6 @@
      :service-port 80}
     config)))
 
-; TODO; postgres genenration
 ; TODO: Check which ones need configuration or authentication information
 (defn-spec generate-events-rabbitmq-deployment cp/map-or-seq? []
   (yaml/from-string (yaml/load-resource "taiga/events-rabbitmq-deployment.yaml")))
@@ -121,8 +122,11 @@
 (defn-spec generate-gateway-configmap cp/map-or-seq? []
   (yaml/from-string (yaml/load-resource "taiga/gateway-configmap.yaml")))
 
-(defn-spec generate-configmap cp/map-or-seq? []
-  (yaml/from-string (yaml/load-resource "taiga/configmap.yaml")))
+(defn-spec generate-configmap cp/map-or-seq? 
+  [config config?]
+  (let [{:keys [fqdn]} config]
+    (-> (yaml/load-as-edn "taiga/configmap.yaml")
+        (cm/replace-all-matching-values-by-new-value "FQDN" fqdn))))
 
 (defn-spec generate-async-service cp/map-or-seq? []
   (yaml/from-string (yaml/load-resource "taiga/async-service.yaml")))
@@ -145,8 +149,13 @@
 (defn-spec generate-gateway-service cp/map-or-seq? []
   (yaml/from-string (yaml/load-resource "taiga/gateway-service.yaml")))
 
-(defn-spec generate-data-pvcs cp/map-or-seq? []
-  (yaml/from-string (yaml/load-resource "taiga/data-pvcs.yaml")))
+(defn-spec generate-pvc-taiga-media-data cp/map-or-seq? 
+  [config config?]
+  (yaml/from-string (yaml/load-resource "taiga/pvc-taiga-media-data.yaml")))
+
+(defn-spec generate-pvc-taiga-static-data cp/map-or-seq?
+  [config config?]
+  (yaml/from-string (yaml/load-resource "taiga/pvc-taiga-static-data.yaml")))
 
 (defn-spec generate-async-rabbitmq-deployment cp/map-or-seq? []
   (yaml/from-string (yaml/load-resource "taiga/async-rabbitmq-deployment.yaml")))
@@ -154,7 +163,8 @@
 (defn-spec generate-protected-service cp/map-or-seq? []
   (yaml/from-string (yaml/load-resource "taiga/protected-service.yaml")))
 
-(defn-spec generate-secret cp/map-or-seq? []
+(defn-spec generate-secret cp/map-or-seq? 
+  [auth auth?]
   (yaml/from-string (yaml/load-resource "taiga/secret.yaml")))
 
 (defn-spec generate-async-rabbitmq-service cp/map-or-seq? []
@@ -169,6 +179,11 @@
 (defn-spec generate-events-rabbitmq-service cp/map-or-seq? []
   (yaml/from-string (yaml/load-resource "taiga/events-rabbitmq-service.yaml")))
 
-(defn-spec generate-rabbitmq-pvc cp/map-or-seq? []
-  (yaml/from-string (yaml/load-resource "taiga/rabbitmq-pvc.yaml")))
+(defn-spec generate-rabbitmq-pvc-async cp/map-or-seq? 
+  [config config?]
+  (yaml/from-string (yaml/load-resource "taiga/rabbitmq-pvc-async.yaml")))
+
+(defn-spec generate-rabbitmq-pvc-events cp/map-or-seq?
+  [config config?]
+  (yaml/from-string (yaml/load-resource "taiga/rabbitmq-pvc-events.yaml")))
 

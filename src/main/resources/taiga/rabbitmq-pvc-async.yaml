@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: taiga-async-rabbitmq-data
+  namespace: default
+  labels:
+    app: taiga
+    app.kubernetes.part-of: taiga
+spec:
+  storageClassName: REPLACEME
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: REPLACEME
