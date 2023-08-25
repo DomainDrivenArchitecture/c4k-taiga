@@ -7,40 +7,18 @@ data:
   # These environment variables will be used by taiga-back and taiga-async.
   # Database settings handled in deployment
 
+  # Telemetry settings
+  ENABLE_TELEMETRY: REPLACEME
+
   # Taiga settings
   TAIGA_SITES_SCHEME: https
-  TAIGA_SITES_DOMAIN: taiga.test.meissa.de # Replace by replacable values
+  TAIGA_SITES_DOMAIN: FQDN
   TAIGA_SUBPATH: ""
-
-  # Email settings.
-  EMAIL_BACKEND: console # django.core.mail.backends.${EMAIL_BACKEND}.EmailBackend # ToDo move to code base
-  DEFAULT_FROM_EMAIL: meissa@meissa.de
-  EMAIL_USE_TLS: "false"
-  EMAIL_USE_SSL: "false"
-  EMAIL_HOST: smpt.meissa.de
-  EMAIL_PORT: "39"
-
-  # Telemetry settings
-  ENABLE_TELEMETRY: "false"
-  # ...your customizations go here
-
-  # Taiga Events Settings
-  # EVENTS_PUSH_BACKEND_URL: RABBITMQ_URL_VALUE
-  ## Format RABBITMQ_URL="amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@taiga-events-rabbitmq:5672/taiga"
-  # RABBITMQ_URL: RABBITMQ_URL_VALUE # found in https://github.com/kaleidos-ventures/taiga-events/blob/main/docker/env.template
-
-  # Taiga Async Settings
-  # CELERY_BROKER_URL: CELERY_URL_VALUE
 
   # Taiga Front Settings
-  TAIGA_URL: https://taiga.test.meissa.de
-  TAIGA_SUBPATH: ""
-  TAIGA_WEBSOCKETS_URL: wss://taiga.test.meissa.de
-  PUBLIC_REGISTER_ENABLED: "true"
-  CONTRIB_PLUGINS: ""
-  GITHUB_CLIENT_ID: ""
-  GITLAB_CLIENT_ID: ""
-  GITLAB_URL: ""
+  TAIGA_URL: https://FQDN
+  TAIGA_WEBSOCKETS_URL: wss://FQDN
+  PUBLIC_REGISTER_ENABLED: REPLACEME
   ENABLE_GITHUB_IMPORTER: "false"
   ENABLE_JIRA_IMPORTER: "false"
   ENABLE_TRELLO_IMPORTER: "false"
@@ -48,5 +26,5 @@ data:
   # Rabbitmq settings
   RABBITMQ_DEFAULT_VHOST: taiga
 
-  SESSION_COOKIE_SECURE: "False"
-  CSRF_COOKIE_SECURE: "False"
+  SESSION_COOKIE_SECURE: "false"
+  CSRF_COOKIE_SECURE: "false"
