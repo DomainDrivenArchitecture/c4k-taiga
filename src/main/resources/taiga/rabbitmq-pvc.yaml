@@ -7,12 +7,12 @@ metadata:
     app: taiga
     app.kubernetes.part-of: taiga
 spec:
-  storageClassName: local-path
+  storageClassName: local-path # ToDo: configurable
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 1Gi
+      storage: 1Gi # ToDo: configurable
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -23,9 +23,9 @@ metadata:
     app: taiga
     app.kubernetes.part-of: taiga
 spec:
-  storageClassName: local-path
+  storageClassName: local-path # ToDo: configurable
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 1Gi
+      storage: 1Gi # ToDo: configurable

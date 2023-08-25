@@ -27,18 +27,16 @@ spec:
           mountPath: /var/lib/rabbitmq
           readOnly: false
         env:
-        - name: RABBITMQ_LOGS
-          value: /opt/rabbitmq/logs.log
         - name: RABBITMQ_DEFAULT_USER
           valueFrom:
             secretKeyRef:
               name: taiga-secret
-              key: RABBITMQ_DEFAULT_USER
+              key: RABBITMQ_USER
         - name: RABBITMQ_DEFAULT_PASS
           valueFrom:
             secretKeyRef:
               name: taiga-secret
-              key: RABBITMQ_DEFAULT_PASS
+              key: RABBITMQ_PASS
         - name: RABBITMQ_ERLANG_COOKIE
           valueFrom:
             secretKeyRef:

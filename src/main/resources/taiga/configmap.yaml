@@ -9,7 +9,7 @@ data:
 
   # Taiga settings
   TAIGA_SITES_SCHEME: https
-  TAIGA_SITES_DOMAIN: taiga.test.meissa.de
+  TAIGA_SITES_DOMAIN: taiga.test.meissa.de # Replace by replacable values
   TAIGA_SUBPATH: ""
 
   # Email settings.
