@@ -17,24 +17,61 @@
 
 
 (def config-defaults {:issuer "staging"
-                      :volume-size "3"})
+                      :storage-class-name "local-path"
+                      :pv-storage-size-gb "5" ;; ToDo: check sensible defaults
+                      :storage-media-size "5"
+                      :storage-static-size "5"
+                      :storage-async-rabbitmq-size "5"
+                      :storage-events-rabbitmq-size "5"
+                      :public-register-enabled "false"
+                      :enable-telemetry "false"})
 
 (s/def ::mon-cfg ::mon/mon-cfg)
 (s/def ::mon-auth ::mon/mon-auth)
+(s/def ::taiga-secret cp/bash-env-string?)
+(s/def ::mailer-user string?)
+(s/def ::mailer-pw string?)
+(s/def ::django-superuser-username string?)
+(s/def ::django-superuser-password string?)
+(s/def ::django-superuser-email string?)
+(s/def ::rabbitmq-user string?)
+(s/def ::rabbitmq-pw string?)
+(s/def ::rabbitmq-erlang-cookie string?)
 
-(s/def ::fqdn cp/fqdn-string?)
 (s/def ::issuer cp/letsencrypt-issuer?)
-; TODO: Passwords
+(s/def ::fqdn cp/fqdn-string?)
+(s/def ::public-register-enabled string?) ;; ToDo maybe check for boolean string
+(s/def ::enable-telemetry string?)
+(s/def ::storage-class-name string?)
+(s/def ::storage-media-size int?)
+(s/def ::storage-static-size int?)
+(s/def ::storage-async-rabbitmq-size int?)
+(s/def ::storage-events-rabbitmq-size int?)
+
+(def auth? (s/keys :req-un [::postgres/postgres-db-user 
+                            ::postgres/postgres-db-password
+                            ::taiga-secret
+                            ::mailer-pw
+                            ::mailer-user
+                            ::django-superuser-email
+                            ::django-superuser-password
+                            ::django-superuser-username
+                            ::rabbitmq-erlang-cookie
+                            ::rabbitmq-pw
+                            ::rabbitmq-user]
+                   :opt-un [::mon-auth]))
 
 (def config? (s/keys :req-un [::fqdn]
                      :opt-un [::issuer
+                              ::storage-class-name
+                              ::storage-media-size
+                              ::storage-static-size
+                              ::storage-async-rabbitmq-size
+                              ::storage-events-rabbitmq-size
                               ::pv-storage-size-gb
-                              ::pvc-storage-class-name
+                              ::public-register-enabled
+                              ::enable-telemetry
                               ::mon-cfg]))
-
-(def auth? (s/keys :req-un [::postgres/postgres-db-user ::postgres/postgres-db-password]
-                   :opt-un [::mon-auth]))
-
 
 #?(:cljs
    (defmethod yaml/load-resource :taiga [resource-name]
@@ -70,6 +107,7 @@
      :service-port 80}
     config)))
 
+; TODO; postgres genenration
 ; TODO: Check which ones need configuration or authentication information
 (defn-spec generate-events-rabbitmq-deployment cp/map-or-seq? []
   (yaml/from-string (yaml/load-resource "taiga/events-rabbitmq-deployment.yaml")))
