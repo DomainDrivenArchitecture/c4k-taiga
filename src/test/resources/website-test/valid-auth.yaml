@@ -8,6 +8,7 @@ django-superuser-password: ""
 django-superuser-email: "some@example.com"
 rabbitmq-user: ""
 rabbitmq-pw: ""
+rabbitmq-erlang-cookie: ""
 mon-auth: 
   grafana-cloud-user: "user"
   grafana-cloud-password: "password"
