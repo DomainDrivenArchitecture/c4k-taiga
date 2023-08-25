@@ -15,6 +15,8 @@
 (def config? taiga/config?)
 (def auth? taiga/auth?)
 
+(def config-defaults taiga/config-defaults)
+
 (defn-spec k8s-objects cp/map-or-seq?
   [config taiga/config?
    auth taiga/auth?]  
