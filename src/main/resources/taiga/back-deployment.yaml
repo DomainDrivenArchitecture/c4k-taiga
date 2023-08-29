@@ -18,8 +18,8 @@ spec:
       containers:
       - name: taiga-back
         command: 
-          - /taiga-back/docker/entrypoint.sh
-          - /taiga-back/docker/manage.py createsuperuser --noinput
+          - python /taiga-back/docker/manage.py createsuperuser --noinput
+          - /taiga-back/docker/entrypoint.sh          
         image: taigaio/taiga-back:latest 
         imagePullPolicy: IfNotPresent
         ports:
