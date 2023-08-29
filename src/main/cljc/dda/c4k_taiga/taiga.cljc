@@ -103,11 +103,13 @@
 
 (defn-spec generate-ingress-and-cert cp/map-or-seq?
   [config config?]
-  (ing/generate-ingress-and-cert
-   (merge
-    {:service-name "taiga"
-     :service-port 80}
-    config)))
+  (let [{:keys [fqdn]} config]
+    (ing/generate-ingress-and-cert
+     (merge
+      {:service-name "taiga"
+       :service-port 3000
+       :fqdns [fqdn]}
+      config))))
 
 ; TODO: Check which ones need configuration or authentication information
 (defn-spec generate-events-rabbitmq-deployment cp/map-or-seq? []
