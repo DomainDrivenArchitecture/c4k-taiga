@@ -19,7 +19,8 @@
           :kind "ConfigMap",
           :metadata {:name "taiga-configmap", :namespace "default"},
           :data
-          {:ENABLE_TELEMETRY "false",
+          {:CELERY_ENABLED "false",
+           :ENABLE_TELEMETRY "false",
            :TAIGA_SITES_SCHEME "https",
            :TAIGA_SITES_DOMAIN "taiga.test.meissa.de",
            :TAIGA_SUBPATH "",
