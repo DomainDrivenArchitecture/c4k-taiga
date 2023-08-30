@@ -106,8 +106,8 @@
   (let [{:keys [fqdn]} config]
     (ing/generate-ingress-and-cert
      (merge
-      {:service-name "taiga"
-       :service-port 3000
+      {:service-name "taiga-front"
+       :service-port 80
        :fqdns [fqdn]}
       config))))
 
