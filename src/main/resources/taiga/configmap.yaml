@@ -7,6 +7,9 @@ data:
   # These environment variables will be used by taiga-back and taiga-async.
   # Database settings handled in deployment
 
+  # Taiga back settings
+  CELERY_ENABLED: "false"
+
   # Telemetry settings
   ENABLE_TELEMETRY: REPLACEME
 
