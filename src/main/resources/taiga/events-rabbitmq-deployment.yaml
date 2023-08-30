@@ -9,11 +9,11 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: taiga
+      app.kubernetes.io/component: taiga-events-rabbitmq
   template: 
     metadata:
       labels:
-        app: taiga
+        app.kubernetes.io/component: taiga-events-rabbitmq
     spec:
       containers:
       - name: taiga-events-rabbitmq

@@ -9,7 +9,7 @@ metadata:
 spec:
   type: ClusterIP
   selector:
-    app: taiga
+    app.kubernetes.io/component: taiga-events-rabbitmq
   ports:
     - name: amqp
       targetPort: amqp

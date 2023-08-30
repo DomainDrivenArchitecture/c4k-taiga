@@ -9,11 +9,11 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: taiga
+      app.kubernetes.io/component: taiga-async
   template:
     metadata:
       labels:
-        app: taiga
+        app.kubernetes.io/component: taiga-async
     spec:
       containers:
       - name: taiga-async
