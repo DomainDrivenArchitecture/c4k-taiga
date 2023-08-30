@@ -111,18 +111,56 @@
        :fqdns [fqdn]}
       config))))
 
-; TODO: Check which ones need configuration or authentication information
+(defn-spec generate-async-deployment cp/map-or-seq? []
+  (yaml/from-string (yaml/load-resource "taiga/async-deployment.yaml")))
+
+(defn-spec generate-async-service cp/map-or-seq? []
+  (yaml/from-string (yaml/load-resource "taiga/async-service.yaml")))
+
+(defn-spec generate-async-rabbitmq-deployment cp/map-or-seq? []
+  (yaml/from-string (yaml/load-resource "taiga/async-rabbitmq-deployment.yaml")))
+
+(defn-spec generate-events-rabbitmq-service cp/map-or-seq? []
+  (yaml/from-string (yaml/load-resource "taiga/events-rabbitmq-service.yaml")))
+
+(defn-spec generate-async-rabbitmq-service cp/map-or-seq? []
+  (yaml/from-string (yaml/load-resource "taiga/async-rabbitmq-service.yaml")))
+
+(defn-spec generate-back-deployment cp/map-or-seq? []
+  (yaml/from-string (yaml/load-resource "taiga/back-deployment.yaml")))
+
+(defn-spec generate-back-service cp/map-or-seq? []
+  (yaml/from-string (yaml/load-resource "taiga/back-service.yaml")))
+
 (defn-spec generate-events-rabbitmq-deployment cp/map-or-seq? []
   (yaml/from-string (yaml/load-resource "taiga/events-rabbitmq-deployment.yaml")))
+
+(defn-spec generate-events-deployment cp/map-or-seq? []
+  (yaml/from-string (yaml/load-resource "taiga/events-deployment.yaml")))
+
+(defn-spec generate-events-service cp/map-or-seq? []
+  (yaml/from-string (yaml/load-resource "taiga/events-service.yaml")))
+
+(defn-spec generate-front-deployment cp/map-or-seq? []
+  (yaml/from-string (yaml/load-resource "taiga/front-deployment.yaml")))
+
+(defn-spec generate-front-service cp/map-or-seq? []
+  (yaml/from-string (yaml/load-resource "taiga/front-service.yaml")))
+
+(defn-spec generate-gateway-configmap cp/map-or-seq? []
+  (yaml/from-string (yaml/load-resource "taiga/gateway-configmap.yaml")))
 
 (defn-spec generate-gateway-deployment cp/map-or-seq? []
   (yaml/from-string (yaml/load-resource "taiga/gateway-deployment.yaml")))
 
+(defn-spec generate-gateway-service cp/map-or-seq? []
+  (yaml/from-string (yaml/load-resource "taiga/gateway-service.yaml")))
+
 (defn-spec generate-protected-deployment cp/map-or-seq? []
   (yaml/from-string (yaml/load-resource "taiga/protected-deployment.yaml")))
 
-(defn-spec generate-gateway-configmap cp/map-or-seq? []
-  (yaml/from-string (yaml/load-resource "taiga/gateway-configmap.yaml")))
+(defn-spec generate-protected-service cp/map-or-seq? []
+  (yaml/from-string (yaml/load-resource "taiga/protected-service.yaml")))
 
 (defn-spec generate-configmap cp/map-or-seq? 
   [config config?]
@@ -133,27 +171,6 @@
         (cm/replace-key-value :TAIGA_WEBSOCKETS_URL (str "wss://" fqdn))
         (cm/replace-key-value :ENABLE_TELEMETRY enable-telemetry)
         (cm/replace-key-value :PUBLIC_REGISTER_ENABLED public-register-enabled))))
-
-(defn-spec generate-async-service cp/map-or-seq? []
-  (yaml/from-string (yaml/load-resource "taiga/async-service.yaml")))
-
-(defn-spec generate-events-deployment cp/map-or-seq? []
-  (yaml/from-string (yaml/load-resource "taiga/events-deployment.yaml")))
-
-(defn-spec generate-async-deployment cp/map-or-seq? []
-  (yaml/from-string (yaml/load-resource "taiga/async-deployment.yaml")))
-
-(defn-spec generate-back-deployment cp/map-or-seq? []
-  (yaml/from-string (yaml/load-resource "taiga/back-deployment.yaml")))
-
-(defn-spec generate-front-deployment cp/map-or-seq? []
-  (yaml/from-string (yaml/load-resource "taiga/front-deployment.yaml")))
-
-(defn-spec generate-front-service cp/map-or-seq? []
-  (yaml/from-string (yaml/load-resource "taiga/front-service.yaml")))
-
-(defn-spec generate-gateway-service cp/map-or-seq? []
-  (yaml/from-string (yaml/load-resource "taiga/gateway-service.yaml")))
 
 (defn-spec generate-pvc-taiga-media-data cp/map-or-seq? 
   [config config?]
@@ -170,12 +187,6 @@
      (yaml/from-string (yaml/load-resource "taiga/pvc-taiga-static-data.yaml"))
      (assoc-in [:spec :storageClassName] storage-class-name)
      (assoc-in [:spec :resources :requests :storage] (str storage-static-size "Gi")))))
-
-(defn-spec generate-async-rabbitmq-deployment cp/map-or-seq? []
-  (yaml/from-string (yaml/load-resource "taiga/async-rabbitmq-deployment.yaml")))
-
-(defn-spec generate-protected-service cp/map-or-seq? []
-  (yaml/from-string (yaml/load-resource "taiga/protected-service.yaml")))
 
 (defn-spec generate-secret cp/map-or-seq?
   [auth auth?]
@@ -194,18 +205,6 @@
      (cm/replace-key-value :DJANGO_SUPERUSER_USERNAME (b64/encode django-superuser-username))
      (cm/replace-key-value :DJANGO_SUPERUSER_PASSWORD (b64/encode django-superuser-password))
      (cm/replace-key-value :DJANGO_SUPERUSER_EMAIL (b64/encode django-superuser-email)))))
-
-(defn-spec generate-async-rabbitmq-service cp/map-or-seq? []
-  (yaml/from-string (yaml/load-resource "taiga/async-rabbitmq-service.yaml")))
-
-(defn-spec generate-events-service cp/map-or-seq? []
-  (yaml/from-string (yaml/load-resource "taiga/events-service.yaml")))
-
-(defn-spec generate-back-service cp/map-or-seq? []
-  (yaml/from-string (yaml/load-resource "taiga/back-service.yaml")))
-
-(defn-spec generate-events-rabbitmq-service cp/map-or-seq? []
-  (yaml/from-string (yaml/load-resource "taiga/events-rabbitmq-service.yaml")))
 
 (defn-spec generate-rabbitmq-pvc-async cp/map-or-seq? 
   [config config?]
