@@ -31,6 +31,7 @@
                                    :pvc-storage-class-name default-storage-class})
            (postgres/generate-deployment)
            (postgres/generate-service)
+           (taiga/generate-async-deployment)
            (taiga/generate-async-rabbitmq-deployment)
            (taiga/generate-async-rabbitmq-service)
            (taiga/generate-async-service)
