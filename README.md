@@ -6,10 +6,12 @@
 
 ## Configuration Issues
 
-https://github.com/kaleidos-ventures/taiga-docker
-https://community.taiga.io/t/taiga-30min-setup/170
+We currently can no login even after `python manage.py createsuperuser --noinput` in the taiga-back-deployment container. What might help: https://docs.taiga.io/setup-production.html#taiga-back
 
 Note: taiga-manage,-back und -async verwenden die gleichen docker images mit unterschiedlichen entry-points.
+
+https://github.com/kaleidos-ventures/taiga-docker
+https://community.taiga.io/t/taiga-30min-setup/170
 
 ### HTTPS
 
