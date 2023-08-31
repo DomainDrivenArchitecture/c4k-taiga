@@ -15,10 +15,51 @@ spec:
       labels:
         app.kubernetes.io/component: taiga-back
     spec:
+      initContainers:
+      - name: taiga-manage
+        image: taigaio/taiga-back:latest 
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/bash"]
+        args: ["-c", "source /opt/venv/bin/activate && python manage.py createsuperuser"]
+        ports:
+        - name: http
+          containerPort: 8000
+        volumeMounts:
+        - name: taiga-static
+          mountPath: /taiga-back/static
+          readOnly: false
+        - name: taiga-media
+          mountPath: /taiga-back/media
+          readOnly: false
+        envFrom:
+        - configMapRef:
+            name: taiga-configmap
+        - secretRef:
+            name: taiga-secret
+        env:
+        - name: CELERY_ENABLED
+          value: "false"
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: postgres-user
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: postgres-password
+        - name: POSTGRES_DB
+          valueFrom:
+            configMapKeyRef:
+              name: postgres-config
+              key: postgres-db
+        - name: POSTGRES_HOST
+          value: "postgresql-service"
+        - name: POSTGRES_PORT
+          value: "5432"
       containers:
       - name: taiga-back
-        command:
-          - /taiga-back/docker/entrypoint.sh
         image: taigaio/taiga-back:latest 
         imagePullPolicy: IfNotPresent
         ports:
@@ -57,7 +98,7 @@ spec:
         - name: POSTGRES_PORT
           value: "5432"
       
-      volumes: # ToDo: Remove Volumes where not necessary
+      volumes:
         - name: taiga-static
           persistentVolumeClaim:
             claimName: taiga-static-data
