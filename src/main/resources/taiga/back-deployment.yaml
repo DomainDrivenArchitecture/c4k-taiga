@@ -20,7 +20,7 @@ spec:
         image: taigaio/taiga-back:latest 
         imagePullPolicy: IfNotPresent
         command: ["/bin/bash"]
-        args: ["-c", "source /opt/venv/bin/activate && python manage.py createsuperuser --noinput"]
+        args: ["-c", "source /opt/venv/bin/activate && CELERY_ENABLE=true python manage.py migrate && sleep 15 && python manage.py createsuperuser --noinput"]
         ports:
         - name: http
           containerPort: 8000
