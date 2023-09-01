@@ -26,5 +26,5 @@ data:
   # Rabbitmq settings
   RABBITMQ_DEFAULT_VHOST: taiga
 
-  SESSION_COOKIE_SECURE: "false"
-  CSRF_COOKIE_SECURE: "false"
+  SESSION_COOKIE_SECURE: "False"
+  CSRF_COOKIE_SECURE: "False"
