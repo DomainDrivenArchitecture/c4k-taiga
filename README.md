@@ -25,7 +25,7 @@ The init container gets the following command and args:
 
 ```yaml
 command: ["/bin/bash"]
-args: ["-c", "source /opt/venv/bin/activate && python manage.py createsuperuser"]
+args: ["-c", "source /opt/venv/bin/activate && python manage.py createsuperuser --noinput"]
 ```
 
 Thus the dockerfile default entrypoint is ignored.
