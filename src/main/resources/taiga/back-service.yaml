@@ -1,0 +1,18 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: taiga-back
+  labels:
+    app.kubernetes.part-of: c4k-taiga
+    app.kubernetes.io/component: taiga-back
+  namespace: default
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/component: taiga-back
+  ports:
+    - name: http
+      targetPort: http
+      port: 8000
+      protocol: TCP
+      

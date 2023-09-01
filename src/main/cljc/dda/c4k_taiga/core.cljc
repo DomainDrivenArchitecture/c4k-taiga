@@ -7,33 +7,53 @@
    [dda.c4k-common.common :as cm]
    [dda.c4k-common.predicate :as cp]
    [dda.c4k-common.monitoring :as mon]
-   [dda.c4k-taiga.taiga :as taiga]))
+   [dda.c4k-taiga.taiga :as taiga]
+   [dda.c4k-common.postgres :as postgres]))
 
-(def config-defaults {:issuer "staging"
-                      :volume-size "3"})
+(def default-storage-class :local-path)
 
-(s/def ::mon-cfg ::mon/mon-cfg)
-(s/def ::mon-auth ::mon/mon-auth)
+(def config? taiga/config?)
+(def auth? taiga/auth?)
 
-; ToDo
-(def config? (s/keys :req-un 
-                     :opt-un [::mon-cfg]))
-
-; ToDo
-(def auth? (s/keys :req-un 
-                   :opt-un [::mon-auth]))
-
-; ToDo:
-(defn generate-configs [config auth])
+(def config-defaults taiga/config-defaults)
 
 (defn-spec k8s-objects cp/map-or-seq?
-  [config config?
-   auth auth?]  
+  [config taiga/config?
+   auth taiga/auth?]  
   (cm/concat-vec
    (map yaml/to-string
         (filter
          #(not (nil? %))
          (cm/concat-vec
-          (generate-configs config auth)
+          [(postgres/generate-config {:postgres-size :8gb :db-name "taiga"})
+           (postgres/generate-secret auth)
+           (postgres/generate-pvc {:pv-storage-size-gb 50
+                                   :pvc-storage-class-name default-storage-class})
+           (postgres/generate-deployment)
+           (postgres/generate-service)
+           (taiga/generate-async-deployment)
+           (taiga/generate-async-rabbitmq-deployment)
+           (taiga/generate-async-rabbitmq-service)
+           (taiga/generate-async-service)
+           (taiga/generate-back-deployment)
+           (taiga/generate-back-service)
+           (taiga/generate-configmap config)
+           (taiga/generate-pvc-taiga-media-data config)
+           (taiga/generate-pvc-taiga-static-data config)
+           (taiga/generate-events-deployment)
+           (taiga/generate-events-rabbitmq-deployment)
+           (taiga/generate-events-rabbitmq-service)
+           (taiga/generate-events-service)
+           (taiga/generate-front-deployment)
+           (taiga/generate-front-service)
+           (taiga/generate-gateway-configmap)
+           (taiga/generate-gateway-deployment)
+           (taiga/generate-gateway-service)
+           (taiga/generate-protected-deployment)
+           (taiga/generate-protected-service)
+           (taiga/generate-rabbitmq-pvc-async config)
+           (taiga/generate-rabbitmq-pvc-events config)
+           (taiga/generate-secret auth)]
+          (taiga/generate-ingress-and-cert config)
           (when (:contains? config :mon-cfg)
             (mon/generate (:mon-cfg config) (:mon-auth auth))))))))

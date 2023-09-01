@@ -1,0 +1,107 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: taiga-back-deployment
+  labels:
+    app.kubernetes.part-of: c4k-taiga
+    app.kubernetes.io/component: taiga-back
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: taiga-back
+  template: 
+    metadata:
+      labels:
+        app.kubernetes.io/component: taiga-back
+    spec:
+      initContainers:
+      - name: taiga-manage
+        image: taigaio/taiga-back:latest 
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/bash"]
+        args: ["-c", "source /opt/venv/bin/activate && CELERY_ENABLE=true python manage.py migrate && sleep 15 && python manage.py createsuperuser --noinput"]
+        ports:
+        - name: http
+          containerPort: 8000
+        volumeMounts:
+        - name: taiga-static
+          mountPath: /taiga-back/static
+          readOnly: false
+        - name: taiga-media
+          mountPath: /taiga-back/media
+          readOnly: false
+        envFrom:
+        - configMapRef:
+            name: taiga-configmap
+        - secretRef:
+            name: taiga-secret
+        env:
+        - name: CELERY_ENABLED
+          value: "false"
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: postgres-user
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: postgres-password
+        - name: POSTGRES_DB
+          valueFrom:
+            configMapKeyRef:
+              name: postgres-config
+              key: postgres-db
+        - name: POSTGRES_HOST
+          value: "postgresql-service"
+        - name: POSTGRES_PORT
+          value: "5432"
+      containers:
+      - name: taiga-back
+        image: taigaio/taiga-back:latest 
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 8000
+        volumeMounts:
+        - name: taiga-static
+          mountPath: /taiga-back/static
+          readOnly: false
+        - name: taiga-media
+          mountPath: /taiga-back/media
+          readOnly: false
+        envFrom:
+        - configMapRef:
+            name: taiga-configmap
+        - secretRef:
+            name: taiga-secret
+        env:
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: postgres-user
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: postgres-password
+        - name: POSTGRES_DB
+          valueFrom:
+            configMapKeyRef:
+              name: postgres-config
+              key: postgres-db
+        - name: POSTGRES_HOST
+          value: "postgresql-service"
+        - name: POSTGRES_PORT
+          value: "5432"
+      
+      volumes:
+        - name: taiga-static
+          persistentVolumeClaim:
+            claimName: taiga-static-data
+        - name: taiga-media
+          persistentVolumeClaim:
+            claimName: taiga-media-data

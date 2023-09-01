@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: taiga-front-deployment
+  labels:
+    app.kubernetes.part-of: c4k-taiga
+    app.kubernetes.io/component: taiga-front
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: taiga-front
+  template: 
+    metadata:
+      labels:
+        app.kubernetes.io/component: taiga-front
+    spec:
+      containers:
+      - name: taiga-front
+        image: taigaio/taiga-front:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 80
+        env:
+        - name: TAIGA_URL
+          valueFrom:
+            configMapKeyRef:
+              name: taiga-configmap
+              key: TAIGA_URL
+        - name: TAIGA_SUBPATH
+          valueFrom:
+            configMapKeyRef:
+              name: taiga-configmap
+              key: TAIGA_SUBPATH
+        - name: TAIGA_WEBSOCKETS_URL
+          valueFrom:
+            configMapKeyRef:
+              name: taiga-configmap
+              key: TAIGA_WEBSOCKETS_URL

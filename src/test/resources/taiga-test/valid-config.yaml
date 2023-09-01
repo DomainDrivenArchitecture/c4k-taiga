@@ -1,0 +1,13 @@
+issuer: "staging"
+fqdn: "taiga.test.meissa.de"
+public-register-enabled: "false"
+enable-telemetry: "false"
+storage-class-name: "local-path"
+storage-media-size: 2
+storage-static-size: 3
+storage-async-rabbitmq-size: 4
+storage-events-rabbitmq-size: 5
+mon-cfg: 
+  grafana-cloud-url: "url-for-your-prom-remote-write-endpoint"
+  cluster-name: "jitsi"
+  cluster-stage: "test"

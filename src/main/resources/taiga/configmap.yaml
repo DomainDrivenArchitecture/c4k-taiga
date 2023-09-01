@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: taiga-configmap
+  namespace: default
+data:
+  # These environment variables will be used by taiga-back and taiga-async.
+  # Database settings handled in deployment
+
+  # Telemetry settings
+  ENABLE_TELEMETRY: REPLACEME
+
+  # Taiga settings
+  TAIGA_SITES_SCHEME: https
+  TAIGA_SITES_DOMAIN: FQDN
+  TAIGA_SUBPATH: ""
+
+  # Taiga Front Settings
+  TAIGA_URL: https://FQDN
+  TAIGA_WEBSOCKETS_URL: ws://FQDN
+  PUBLIC_REGISTER_ENABLED: REPLACEME
+  ENABLE_GITHUB_IMPORTER: "false"
+  ENABLE_JIRA_IMPORTER: "false"
+  ENABLE_TRELLO_IMPORTER: "false"
+
+  # Rabbitmq settings
+  RABBITMQ_DEFAULT_VHOST: taiga
+
+  SESSION_COOKIE_SECURE: "False"
+  CSRF_COOKIE_SECURE: "False"

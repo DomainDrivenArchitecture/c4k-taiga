@@ -6,10 +6,43 @@
 
 ## Configuration Issues
 
+We currently can no login even after `python manage.py createsuperuser --noinput` in the taiga-back-deployment container. What might help: https://docs.taiga.io/setup-production.html#taiga-back
+
+Note: taiga-manage,-back und -async verwenden die gleichen docker images mit unterschiedlichen entry-points.
+
 https://github.com/kaleidos-ventures/taiga-docker
 https://community.taiga.io/t/taiga-30min-setup/170
 
-Note: taiga-manage,-back und -async verwenden die gleichen docker images mit unterschiedlichen entry-points.
+### Steps to start and get an admin user
+
+Philosophy: First create the superuser, then populate the DB.
+https://docs.taiga.io/setup-production.html#taiga-back
+https://docs.taiga.io/setup-production.html#_configure_an_admin_user
+https://github.com/kaleidos-ventures/taiga-back/blob/main/docker/entrypoint.sh
+
+In the init container we create the super user. Difference between init-container and container: CELERY_ENABLED: false
+The init container gets the following command and args:
+
+```yaml
+command: ["/bin/bash"]
+args: ["-c", "source /opt/venv/bin/activate && python manage.py createsuperuser --noinput"]
+```
+
+Thus the dockerfile default entrypoint is ignored.
+
+Problem: Login using this method is still not available with the proposed credentials.
+
+#### Option 1: Init container, currently under test
+
+Create an init container (celery disabled) with the python manage.py command and the taiga-manage createsuperuser args
+
+#### Option 2: Single container
+
+Create a single container that has celery disabled at the beginning.
+Runs the following cmds:
+* python manage.py taiga-manage createsuperuser
+* enable celery
+* execute entrypoint.sh
 
 ### HTTPS
 
@@ -48,24 +81,6 @@ Taiga containers that need to reach other taiga containers:
 taiga-async -> taiga-async-rabbitmq
 taiga-events -> taiga-events-rabbitmq
 This is not quite clear, but probably solved with the implementation of services.
-
-### Init container
-
-Es gibt einen Init-Container mit namen *taiga-manage* im deployment.
-Dieser erstellt einen Admin User mit credentials aus dem taiga-back-secret.
-
-#### Einen admin-user anlegen
-
-https://github.com/kaleidos-ventures/taiga-docker#configure-an-admin-user
-
-folglich:  
-
-https://docs.djangoproject.com/en/4.2/ref/django-admin/#django-admin-createsuperuser
-
-Also DJANGO_SUPERUSER_TAIGAADMIN und DJANGO_SUPERUSER_PASSWORD
-sollten für den Container gesetzt sein.
-
-Dann noch ein run befehl mit: python manage.py createsuperuser im init container unterbringen.
 
 ### Deployments
 
