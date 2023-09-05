@@ -43,10 +43,10 @@
 (s/def ::public-register-enabled string?) ;; ToDo maybe check for boolean string
 (s/def ::enable-telemetry string?)
 (s/def ::storage-class-name string?)
-(s/def ::storage-media-size int?)
-(s/def ::storage-static-size int?)
-(s/def ::storage-async-rabbitmq-size int?)
-(s/def ::storage-events-rabbitmq-size int?)
+(s/def ::storage-media-size pos?)
+(s/def ::storage-static-size pos?)
+(s/def ::storage-async-rabbitmq-size pos?)
+(s/def ::storage-events-rabbitmq-size pos?)
 
 (def auth? (s/keys :req-un [::postgres/postgres-db-user 
                             ::postgres/postgres-db-password
@@ -68,7 +68,7 @@
                               ::storage-static-size
                               ::storage-async-rabbitmq-size
                               ::storage-events-rabbitmq-size
-                              ::pv-storage-size-gb
+                              ::postgres/pv-storage-size-gb
                               ::public-register-enabled
                               ::enable-telemetry
                               ::mon-cfg]))
