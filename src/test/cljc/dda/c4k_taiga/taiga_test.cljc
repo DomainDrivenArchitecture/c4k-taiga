@@ -19,8 +19,7 @@
           :kind "ConfigMap",
           :metadata {:name "taiga-configmap", :namespace "default"},
           :data
-          {:CELERY_ENABLED "false",
-           :ENABLE_TELEMETRY "false",
+          {:ENABLE_TELEMETRY "false",
            :TAIGA_SITES_SCHEME "https",
            :TAIGA_SITES_DOMAIN "taiga.test.meissa.de",
            :TAIGA_SUBPATH "",
@@ -31,8 +30,8 @@
            :ENABLE_JIRA_IMPORTER "false",
            :ENABLE_TRELLO_IMPORTER "false",
            :RABBITMQ_DEFAULT_VHOST "taiga",
-           :SESSION_COOKIE_SECURE "false",
-           :CSRF_COOKIE_SECURE "false"}}
+           :SESSION_COOKIE_SECURE "False",
+           :CSRF_COOKIE_SECURE "False"}}
          (cut/generate-configmap (yaml/load-as-edn "taiga-test/valid-config.yaml")))))
 
 (deftest should-generate-pvc-taiga-media-data
