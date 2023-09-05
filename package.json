@@ -23,7 +23,7 @@
         "url": "https://gitlab.com/domaindrivenarchitecture/c4k-taiga/issues"
     },
     "dependencies": {
-        "js-base64": "^3.7.2",
+        "js-base64": "^3.7.5",
         "js-yaml": "^4.0.0"
     },
     "devDependencies": {
