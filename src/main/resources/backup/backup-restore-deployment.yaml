@@ -59,15 +59,16 @@ spec:
         - name: CERTIFICATE_FILE
           value: ""
         volumeMounts:
-        - name: taiga-data-volume
-          mountPath: /var/backups
+        - name: taiga-media
+          mountPath: /media
+          readOnly: true
         - name: backup-secret-volume
           mountPath: /var/run/secrets/backup-secrets
           readOnly: true
-      volumes: # ToDo check correct volumes
-      - name: taiga-data-volume
+      volumes:
+      - name: taiga-media
         persistentVolumeClaim:
-          claimName: taiga-data-pvc
+          claimName: taiga-media-data
       - name: backup-secret-volume
         secret:
           secretName: backup-secret
