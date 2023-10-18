@@ -9,7 +9,7 @@ function main() {
     file_env RESTIC_MONTHS_TO_KEEP 12
 
     backup-db-dump
-    backup-directory "/media"
+    backup-fs-from-directory "/media"
 }
 
 source /usr/local/lib/functions.sh
