@@ -31,6 +31,13 @@ You need:
 Apply this file on your cluster with `kubectl apply -f yourApp.yaml`.  
 Done.
 
+## Backup
+
+- Taiga DB: https://docs.taiga.io/backup-and-restore.html
+- Taiga Media: ?
+- Taiga Protected: ?
+- Taiga Static: ?
+
 ## Development & mirrors
 
 Development happens at: https://repo.prod.meissa.de/meissa/c4k-taiga

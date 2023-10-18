@@ -7,6 +7,7 @@ storage-media-size: 2
 storage-static-size: 3
 storage-async-rabbitmq-size: 4
 storage-events-rabbitmq-size: 5
+restic-repository: "repo-path"
 mon-cfg: 
   grafana-cloud-url: "url-for-your-prom-remote-write-endpoint"
   cluster-name: "jitsi"
