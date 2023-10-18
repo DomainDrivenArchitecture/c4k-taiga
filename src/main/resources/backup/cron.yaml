@@ -1,9 +1,9 @@
 apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
-  name: forgejo-backup
+  name: taiga-backup
   labels:
-    app.kubernetes.part-of: forgejo
+    app.kubernetes.part-of: taiga
 spec:
   schedule: "10 23 * * *"
   successfulJobsHistoryLimit: 1
@@ -14,7 +14,7 @@ spec:
         spec:
           containers:
           - name: backup-app
-            image: domaindrivenarchitecture/c4k-forgejo-backup
+            image: domaindrivenarchitecture/c4k-taiga-backup
             imagePullPolicy: IfNotPresent
             command: ["/entrypoint.sh"]
             env:
@@ -55,15 +55,15 @@ spec:
             - name: CERTIFICATE_FILE
               value: ""
             volumeMounts:
-            - name: forgejo-data-volume
+            - name: taiga-data-volume
               mountPath: /var/backups
             - name: backup-secret-volume
               mountPath: /var/run/secrets/backup-secrets
               readOnly: true
-          volumes:
-          - name: forgejo-data-volume
+          volumes: #ToDo: check correct volumes
+          - name: taiga-data-volume
             persistentVolumeClaim:
-              claimName: forgejo-data-pvc
+              claimName: taiga-data-pvc
           - name: backup-secret-volume
             secret:
               secretName: backup-secret

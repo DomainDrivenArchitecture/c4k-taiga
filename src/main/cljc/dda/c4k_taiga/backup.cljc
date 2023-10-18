@@ -1,4 +1,4 @@
-(ns dda.c4k-forgejo.backup
+(ns dda.c4k-taiga.backup
  (:require
   [clojure.spec.alpha :as s]
   #?(:cljs [shadow.resource :as rc])

@@ -14,10 +14,10 @@ spec:
       labels:
         app: backup-restore
         app.kubernetes.io/name: backup-restore
-        app.kubernetes.io/part-of: forgejo
+        app.kubernetes.io/part-of: taiga
     spec:
       containers:
-      - image: domaindrivenarchitecture/c4k-forgejo-backup
+      - image: domaindrivenarchitecture/c4k-taiga-backup
         name: backup-app
         imagePullPolicy: IfNotPresent
         command: ["/entrypoint-start-and-wait.sh"]
@@ -59,15 +59,15 @@ spec:
         - name: CERTIFICATE_FILE
           value: ""
         volumeMounts:
-        - name: forgejo-data-volume
+        - name: taiga-data-volume
           mountPath: /var/backups
         - name: backup-secret-volume
           mountPath: /var/run/secrets/backup-secrets
           readOnly: true
-      volumes:
-      - name: forgejo-data-volume
+      volumes: # ToDo check correct volumes
+      - name: taiga-data-volume
         persistentVolumeClaim:
-          claimName: forgejo-data-pvc
+          claimName: taiga-data-pvc
       - name: backup-secret-volume
         secret:
           secretName: backup-secret

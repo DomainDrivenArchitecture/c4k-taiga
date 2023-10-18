@@ -2,7 +2,7 @@ from os import environ
 from pybuilder.core import task, init
 from ddadevops import *
 
-name = "c4k-forgejo-backup"
+name = "c4k-taiga-backup"
 MODULE = "docker"
 PROJECT_ROOT_PATH = "../.."
 

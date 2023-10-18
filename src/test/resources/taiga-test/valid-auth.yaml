@@ -1,6 +1,6 @@
 taiga-secret-key: "some-key"
-postgres-db-user: "forgejo"
-postgres-db-password: "forgejo-db-password"
+postgres-db-user: "taiga"
+postgres-db-password: "taiga-db-password"
 mailer-user: "mailer-user"
 mailer-pw: "mailer-pw"
 django-superuser-username: "taiga-admin"
