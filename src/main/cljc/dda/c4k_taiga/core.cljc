@@ -8,6 +8,7 @@
    [dda.c4k-common.predicate :as cp]
    [dda.c4k-common.monitoring :as mon]
    [dda.c4k-taiga.taiga :as taiga]
+   [dda.c4k-taiga.backup :as backup]
    [dda.c4k-common.postgres :as postgres]))
 
 (def default-storage-class :local-path)
@@ -55,5 +56,10 @@
            (taiga/generate-rabbitmq-pvc-events config)
            (taiga/generate-secret auth)]
           (taiga/generate-ingress-and-cert config)
+          (when (contains? config :restic-repository)
+            [(backup/generate-config config)
+             (backup/generate-secret auth)
+             (backup/generate-cron)
+             (backup/generate-backup-restore-deployment config)])
           (when (:contains? config :mon-cfg)
             (mon/generate (:mon-cfg config) (:mon-auth auth))))))))
