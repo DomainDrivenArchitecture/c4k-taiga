@@ -33,10 +33,7 @@ Done.
 
 ## Backup
 
-- Taiga DB: https://docs.taiga.io/backup-and-restore.html
-- Taiga Media: ?
-- Taiga Protected: ?
-- Taiga Static: ?
+- Taiga DB & Taiga Media: https://docs.taiga.io/backup-and-restore.html
 
 ## Development & mirrors
 
