@@ -10,7 +10,7 @@ Easily generate a config for a small scale Taiga deployment. Complete with initi
 
 ## Status
 
-WIP. We still need to implement the backup solution for full functionality.
+WIP. We are currently testing the ins and outs of our configuration.
 
 ## Try out
 
@@ -33,7 +33,10 @@ Done.
 
 ## Backup
 
-- Taiga DB & Taiga Media: https://docs.taiga.io/backup-and-restore.html
+For a working backup you need to save Taiga DB & Taiga Media as described here:
+https://docs.taiga.io/backup-and-restore.html
+
+For further instruction please refer to BackupAndRestore.md in doc/.
 
 ## Development & mirrors
 
