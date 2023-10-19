@@ -61,7 +61,7 @@ spec:
         volumeMounts:
         - name: taiga-media
           mountPath: /media
-          readOnly: true
+          readOnly: false
         - name: backup-secret-volume
           mountPath: /var/run/secrets/backup-secrets
           readOnly: true
