@@ -28,7 +28,19 @@ To generate your configuration:
 
 You can find examples in src/test/resources/taiga-test in this repository.
 Please check the ```def auth?``` and ```def config?``` definitions in src/main/cljc/dda/c4k_taiga/taiga.cljc
-for required and optional values.
+for required and optional values. When you plan to use the dda_backup solution, you also need the keys:
+
+- aws-access-key-id: "AWS_KEY_ID"
+- aws-secret-access-key: "AWS_KEY_SECRET"
+- restic-password: ""
+
+in your auth.yaml
+
+and
+
+- restic-repository: "repo-path"
+
+in your config.yaml.
 
 2. install jarwrapper
 
