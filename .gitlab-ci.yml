@@ -5,11 +5,18 @@ stages:
   - upload
   - image
 
-services:
-  - docker:dind
+.img: &img
+  image: "domaindrivenarchitecture/ddadevops-dind:4.7.2"
+  services:
+    - docker:dind
+  before_script:
+  - export RELEASE_ARTIFACT_TOKEN=$MEISSA_REPO_BUERO_RW
+  - export IMAGE_DOCKERHUB_USER=$DOCKERHUB_USER
+  - export IMAGE_DOCKERHUB_PASSWORD=$DOCKERHUB_PASSWORD
+  - export IMAGE_TAG=$CI_COMMIT_TAG
 
 .cljs-job: &cljs
-  image: domaindrivenarchitecture/shadow-cljs
+  image: "domaindrivenarchitecture/ddadevops-clj-cljs:4.7.2"
   cache:
     key: ${CI_COMMIT_REF_SLUG}
     paths:
@@ -17,40 +24,45 @@ services:
       - .shadow-cljs/
       - .m2
   before_script:
-    - echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/.npmrc
-    - npm install
+  - export RELEASE_ARTIFACT_TOKEN=$MEISSA_REPO_BUERO_RW
+  - echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/.npmrc
+  - npm install
 
-.clj-uploadjob: &clj
-  image: domaindrivenarchitecture/lein
+.clj-job: &clj
+  image: "domaindrivenarchitecture/ddadevops-clj-cljs:4.7.2"
   cache:
     key: ${CI_COMMIT_REF_SLUG}
     paths:
       - .m2
   before_script:
-    - mkdir -p /root/.lein
-    - echo "{:auth {:repository-auth {#\"clojars\" {:username \"${CLOJARS_USER}\" :password \"${CLOJARS_TOKEN_DOMAINDRIVENARCHITECTURE}\" }}}}" > ~/.lein/profiles.clj
+  - export RELEASE_ARTIFACT_TOKEN=$MEISSA_REPO_BUERO_RW
+  - mkdir -p /root/.lein
+  - echo "{:auth {:repository-auth {#\"clojars\" {:username \"${CLOJARS_USER}\" :password \"${CLOJARS_TOKEN_DOMAINDRIVENARCHITECTURE}\" }}}}" > ~/.lein/profiles.clj
 
-test-cljs:
-  <<: *cljs
-  stage: build_and_test
-  script:
-    - shadow-cljs compile test
-    - node target/node-tests.js
+.tag_only: &tag_only
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: never
+    - if: '$CI_COMMIT_TAG =~ /^[0-9]+\.[0-9]+\.[0-9]+$/'
 
 test-clj:
   <<: *clj
   stage: build_and_test
   script:
-    - lein test
+    - pyb test_clj
+
+test-cljs:
+  <<: *cljs
+  stage: build_and_test
+  script:
+    - pyb test_cljs
 
 test-schema:
   <<: *clj
   stage: build_and_test
   script:
-    - lein uberjar
-    - java -jar target/uberjar/c4k-taiga-standalone.jar src/test/resources/taiga-test/valid-config.yaml src/test/resources/taiga-test/valid-auth.yaml | kubeconform --kubernetes-version 1.23.0 --strict --skip Certificate -
+    - pyb test_schema
   artifacts:
-    expire_in: 1h
     paths:
       - target/uberjar
 
@@ -58,10 +70,8 @@ report-frontend:
   <<: *cljs
   stage: package
   script:
-    - mkdir -p target/frontend-build
-    - shadow-cljs run shadow.cljs.build-report frontend target/frontend-build/build-report.html
+    - pyb report_frontend
   artifacts:
-    expire_in: 1h
     paths:
       - target/frontend-build/build-report.html
 
@@ -69,13 +79,8 @@ package-frontend:
   <<: *cljs
   stage: package
   script:
-    - mkdir -p target/frontend-build
-    - shadow-cljs release frontend
-    - cp public/js/main.js target/frontend-build/c4k-taiga.js
-    - sha256sum target/frontend-build/c4k-taiga.js > target/frontend-build/c4k-taiga.js.sha256
-    - sha512sum target/frontend-build/c4k-taiga.js > target/frontend-build/c4k-taiga.js.sha512
+    - pyb package_frontend
   artifacts:
-    expire_in: 1h
     paths:
       - target/frontend-build
 
@@ -83,47 +88,28 @@ package-uberjar:
   <<: *clj
   stage: package
   script:
-    - lein uberjar
-    - sha256sum target/uberjar/c4k-taiga-standalone.jar > target/uberjar/c4k-taiga-standalone.jar.sha256
-    - sha512sum target/uberjar/c4k-taiga-standalone.jar > target/uberjar/c4k-taiga-standalone.jar.sha512
+    - pyb package_uberjar
   artifacts:
-    expire_in: 1h
-    paths:
-      - target/uberjar   
-
-upload-clj-release:
-  <<: *clj
-  stage: upload
-  rules:
-    - if: '$CI_COMMIT_TAG != null'
-  script:
-    - lein deploy
-
-release:
-  image: registry.gitlab.com/gitlab-org/release-cli:latest
-  stage: upload
-  rules:
-    - if: '$CI_COMMIT_TAG != null'
-  artifacts:
-    expire_in: 24h
     paths:
       - target/uberjar
-      - target/frontend-build
-  script:
-    - apk --no-cache add curl
-    - |
-      release-cli create --name "Release $CI_COMMIT_TAG" --tag-name $CI_COMMIT_TAG \
-        --assets-link "{\"name\":\"c4k-taiga-standalone.jar\",\"url\":\"https://gitlab.com/domaindrivenarchitecture/c4k-taiga/-/jobs/${CI_JOB_ID}/artifacts/file/target/uberjar/c4k-taiga-standalone.jar\"}" \
-        --assets-link "{\"name\":\"c4k-taiga-standalone.jar.sha256\",\"url\":\"https://gitlab.com/domaindrivenarchitecture/c4k-taiga/-/jobs/${CI_JOB_ID}/artifacts/file/target/uberjar/c4k-taiga-standalone.jar.sha256\"}" \
-        --assets-link "{\"name\":\"c4k-taiga-standalone.jar.sha512\",\"url\":\"https://gitlab.com/domaindrivenarchitecture/c4k-taiga/-/jobs/${CI_JOB_ID}/artifacts/file/target/uberjar/c4k-taiga-standalone.jar.sha512\"}" \
-        --assets-link "{\"name\":\"c4k-taiga.js\",\"url\":\"https://gitlab.com/domaindrivenarchitecture/c4k-taiga/-/jobs/${CI_JOB_ID}/artifacts/file/target/frontend-build/c4k-taiga.js\"}" \
-        --assets-link "{\"name\":\"c4k-taiga.js.sha256\",\"url\":\"https://gitlab.com/domaindrivenarchitecture/c4k-taiga/-/jobs/${CI_JOB_ID}/artifacts/file/target/frontend-build/c4k-taiga.js.sha256\"}" \
-        --assets-link "{\"name\":\"c4k-taiga.js.sha512\",\"url\":\"https://gitlab.com/domaindrivenarchitecture/c4k-taiga/-/jobs/${CI_JOB_ID}/artifacts/file/target/frontend-build/c4k-taiga.js.sha512\"}" \
 
-taiga-image-test-publish:
-  image: domaindrivenarchitecture/devops-build:latest
-  stage: image
-  rules:
-    - if: '$CI_COMMIT_TAG != null'
+release-to-clojars:
+  <<: *clj
+  <<: *tag_only
+  stage: upload
   script:
-    - cd infrastructure/c4k-taiga-build && pyb image test publish
+    - pyb upload_clj
+
+release-to-forgejo:
+  <<: *clj
+  <<: *tag_only
+  stage: upload
+  script:
+    - pyb publish_artifacts
+
+backup-image-publish:
+  <<: *img
+  <<: *tag_only
+  stage: image
+  script:
+    - cd infrastructure/backup && pyb image publish
