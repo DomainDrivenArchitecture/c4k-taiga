@@ -14,7 +14,7 @@ function main() {
     # Restore latest snapshot into /var/backups/restore
     restore-directory '/var/backups/restore'
     
-    cp -r /var/backups/restore/* /media
+    mv /var/backups/restore/* /media
 
     # adjust file permissions for the taiga user
     chown -R 999:999 /media
