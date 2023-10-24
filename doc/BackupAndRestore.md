@@ -20,27 +20,31 @@
 
 ## Manual backup the restic repository for the first time
 
-1. Scale Cloud deployment down:   
-  `kubectl scale deployment cloud-deployment --replicas=0`
+1. Scale gateway and front deployment down:   
+  `kubectl scale deployment taiga-gateway-deployment --replicas=0`
+  `kubectl scale deployment taiga-front-deployment --replicas=0`
 1. Scale backup-restore deployment up:   
    `kubectl scale deployment backup-restore --replicas=1`
 1. exec into pod and execute restore pod   
    `kubectl exec -it backup-restore -- /usr/local/bin/backup.sh`
 1. Scale backup-restore deployment down:   
   `kubectl scale deployment backup-restore --replicas=0`
-1. Scale Cloud deployment up:   
-   `kubectl scale deployment cloud-deployment --replicas=1`
+1. Scale gateway and front deployment up:   
+   `kubectl scale deployment taiga-gateway-deployment --replicas=1`
+  `kubectl scale deployment taiga-front-deployment --replicas=1`
 
 
 ## Manual restore
 
-1. Scale Cloud deployment down:   
-  `kubectl scale deployment cloud-deployment --replicas=0`
+1. Scale gateway and front deployment down:   
+  `kubectl scale deployment taiga-gateway-deployment --replicas=0`
+  `kubectl scale deployment taiga-front-deployment --replicas=0`
 2. Scale backup-restore deployment up:   
    `kubectl scale deployment backup-restore --replicas=1`
 3. exec into pod and execute restore pod   
    `kubectl exec -it backup-restore -- /usr/local/bin/restore.sh`
 4. Scale backup-restore deployment down:   
   `kubectl scale deployment backup-restore --replicas=0`
-5. Scale Cloud deployment up:   
-   `kubectl scale deployment cloud-deployment --replicas=1`
+1. Scale gateway and front deployment up:   
+   `kubectl scale deployment taiga-gateway-deployment --replicas=1`
+  `kubectl scale deployment taiga-front-deployment --replicas=1`
