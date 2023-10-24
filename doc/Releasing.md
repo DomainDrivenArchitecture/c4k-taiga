@@ -1,5 +1,7 @@
 # Release process 
 
+(Deprecated, please refer to the build.py instead.)
+
 ## ... for testing (snapshots)
 
 Make sure your clojars.org credentials are correctly set in your ~/.lein/profiles.clj file.
