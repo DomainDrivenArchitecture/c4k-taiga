@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -eux
+
 function main() {
     create-pg-pass
 
