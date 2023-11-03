@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -eux pipefail
-
 function main() {
     create-pg-pass
 
