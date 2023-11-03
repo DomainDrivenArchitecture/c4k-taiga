@@ -36,15 +36,16 @@
 
 ## Manual restore
 
-1. Scale gateway and front deployment down:   
-  `kubectl scale deployment taiga-gateway-deployment --replicas=0`
-  `kubectl scale deployment taiga-front-deployment --replicas=0`
-2. Scale backup-restore deployment up:   
+1. Scale gateway and front deployment down:
+   `kubectl scale deployment taiga-gateway-deployment --replicas=0`
+   `kubectl scale deployment taiga-front-deployment --replicas=0`
+2. Scale backup-restore deployment up:
    `kubectl scale deployment backup-restore --replicas=1`
-3. exec into pod and execute restore pod   
+3. exec into pod and execute restore pod:
    `kubectl exec -it backup-restore -- /usr/local/bin/restore.sh`
-4. Scale backup-restore deployment down:   
-  `kubectl scale deployment backup-restore --replicas=0`
-1. Scale gateway and front deployment up:   
+4. Scale backup-restore deployment down:
+   `kubectl scale deployment backup-restore --replicas=0`
+5. Scale gateway and front deployment up:
+   `kubectl scale deployment taiga-front-deployment --replicas=1`
    `kubectl scale deployment taiga-gateway-deployment --replicas=1`
-  `kubectl scale deployment taiga-front-deployment --replicas=1`
+  
