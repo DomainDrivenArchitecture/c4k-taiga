@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eux
+set -eux pipefail
 
 apt-get update > /dev/null;
 
