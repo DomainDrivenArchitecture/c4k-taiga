@@ -1,4 +1,4 @@
-(defproject org.domaindrivenarchitecture/c4k-taiga "1.1.1"
+(defproject org.domaindrivenarchitecture/c4k-taiga "1.1.2-SNAPSHOT"
   :description "taiga c4k-installation package"
   :url "https://domaindrivenarchitecture.org"
   :license {:name "Apache License, Version 2.0"
