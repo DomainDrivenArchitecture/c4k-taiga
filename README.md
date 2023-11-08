@@ -10,7 +10,7 @@ Easily generate a config for a small scale Taiga deployment. Complete with initi
 
 ## Status
 
-WIP. We are currently testing the ins and outs of our configuration.
+Ready for production. We are about to migrate to taiga on our own servers.
 
 ## Try out
 
