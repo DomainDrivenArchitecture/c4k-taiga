@@ -1,9 +1,9 @@
-(defproject org.domaindrivenarchitecture/c4k-taiga "0.0.1-Snapshot"
+(defproject org.domaindrivenarchitecture/c4k-taiga "1.0.1-SNAPSHOT"
   :description "taiga c4k-installation package"
   :url "https://domaindrivenarchitecture.org"
   :license {:name "Apache License, Version 2.0"
             :url "https://www.apache.org/licenses/LICENSE-2.0.html"}
-  :dependencies [[org.clojure/clojure "1.0.1-SNAPSHOT"]
+  :dependencies [[org.clojure/clojure "1.11.1"]
                  [org.clojure/tools.reader "1.3.6"]                 
                  [org.domaindrivenarchitecture/c4k-common-clj "6.1.0"]
                  [hickory "0.7.1" :exclusions [viebel/codox-klipse-theme]]]
