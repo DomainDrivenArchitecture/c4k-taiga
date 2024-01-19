@@ -9,7 +9,7 @@ services:
   - docker:dind
 
 .cljs-job: &cljs
-  image: domaindrivenarchitecture/shadow-cljs
+  image: "domaindrivenarchitecture/ddadevops-clj-cljs:4.10.7"
   cache:
     key: ${CI_COMMIT_REF_SLUG}
     paths:
@@ -17,16 +17,18 @@ services:
       - .shadow-cljs/
       - .m2
   before_script:
+    - export RELEASE_ARTIFACT_TOKEN=$MEISSA_REPO_BUERO_RW
     - echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/.npmrc
     - npm install
 
 .clj-uploadjob: &clj
-  image: domaindrivenarchitecture/lein
+  image: "domaindrivenarchitecture/ddadevops-clj-cljs:4.10.7"
   cache:
     key: ${CI_COMMIT_REF_SLUG}
     paths:
       - .m2
   before_script:
+    - export RELEASE_ARTIFACT_TOKEN=$MEISSA_REPO_BUERO_RW
     - mkdir -p /root/.lein
     - echo "{:auth {:repository-auth {#\"clojars\" {:username \"${CLOJARS_USER}\" :password \"${CLOJARS_TOKEN_DOMAINDRIVENARCHITECTURE}\" }}}}" > ~/.lein/profiles.clj
 
