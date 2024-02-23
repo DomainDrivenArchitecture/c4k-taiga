@@ -13,7 +13,8 @@
    [dda.c4k-common.monitoring :as mon]
    [dda.c4k-common.postgres :as postgres]
    [dda.c4k-common.ingress :as ing]
-   [clojure.string :as str]))
+   [clojure.string :as str]
+    #?(:cljs [dda.c4k-common.macros :refer-macros [inline-resources]])))
 
 
 (def config-defaults {:issuer "staging"
@@ -75,31 +76,7 @@
 
 #?(:cljs
    (defmethod yaml/load-resource :taiga [resource-name]
-     (case resource-name
-       "taiga/events-rabbitmq-deployment.yaml"        (rc/inline "taiga/events-rabbitmq-deployment.yaml")
-       "taiga/gateway-deployment.yaml"                (rc/inline "taiga/gateway-deployment.yaml")
-       "taiga/protected-deployment.yaml"              (rc/inline "taiga/protected-deployment.yaml")
-       "taiga/gateway-configmap.yaml"                 (rc/inline "taiga/gateway-configmap.yaml")
-       "taiga/configmap.yaml"                         (rc/inline "taiga/configmap.yaml")
-       "taiga/async-service.yaml"                     (rc/inline "taiga/async-service.yaml")
-       "taiga/events-deployment.yaml"                 (rc/inline "taiga/events-deployment.yaml")
-       "taiga/async-deployment.yaml"                  (rc/inline "taiga/async-deployment.yaml")
-       "taiga/back-deployment.yaml"                   (rc/inline "taiga/back-deployment.yaml")
-       "taiga/front-deployment.yaml"                  (rc/inline "taiga/front-deployment.yaml")
-       "taiga/front-service.yaml"                     (rc/inline "taiga/front-service.yaml")
-       "taiga/gateway-service.yaml"                   (rc/inline "taiga/gateway-service.yaml")
-       "taiga/pvc-taiga-media-data.yaml"              (rc/inline "taiga/pvc-taiga-media-data.yaml")
-       "taiga/pvc-taiga-static-data.yaml"             (rc/inline "taiga/pvc-taiga-static-data.yaml")
-       "taiga/async-rabbitmq-deployment.yaml"         (rc/inline "taiga/async-rabbitmq-deployment.yaml")
-       "taiga/protected-service.yaml"                 (rc/inline "taiga/protected-service.yaml")
-       "taiga/secret.yaml"                            (rc/inline "taiga/secret.yaml")
-       "taiga/async-rabbitmq-service.yaml"            (rc/inline "taiga/async-rabbitmq-service.yaml")
-       "taiga/events-service.yaml"                    (rc/inline "taiga/events-service.yaml")
-       "taiga/back-service.yaml"                      (rc/inline "taiga/back-service.yaml")
-       "taiga/events-rabbitmq-service.yaml"           (rc/inline "taiga/events-rabbitmq-service.yaml")
-       "taiga/rabbitmq-pvc-async.yaml"                (rc/inline "taiga/rabbitmq-pvc-async.yaml")
-       "taiga/rabbitmq-pvc-events.yaml"               (rc/inline "taiga/rabbitmq-pvc-events.yaml")
-       (throw (js/Error. "Undefined Resource!")))))
+     (get (inline-resources "taiga") resource-name)))
 
 (defn-spec generate-ingress-and-cert cp/map-or-seq?
   [config config?]
