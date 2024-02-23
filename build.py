@@ -40,6 +40,12 @@ def initialize(project):
 
 
 @task
+def test(project):
+    test_clj(project)
+    test_cljs(project)
+    test_schema(project)
+
+@task
 def test_clj(project):
     run("lein test", shell=True, check=True)
 
