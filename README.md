@@ -63,9 +63,17 @@ To set up you need:
 Apply this file on your cluster with `kubectl apply -f application.yaml`.  
 Done.
 
+## Setup
+
+`python manage.py createsuperuser --noinput`
+
 ## Administration
 
 You can access the administration of the taiga installation via: your.taiga.url/admin/
+
+In order to login, you first have to create a superuser.
+1. Connect to taiga-back pod: `kubectl exec -it taiga-back-deployment-... -- bash`
+2. `source /opt/venv/bin/activate && python manage.py createsuperuser --noinput`
 
 ## Backup
 
