@@ -19,3 +19,29 @@
           :data
           {:restic-repository "s3:restic-repository"}}
          (cut/generate-config {:restic-repository "s3:restic-repository"}))))
+
+(deftest should-generate-secret
+  (is (= {:apiVersion "v1"
+          :kind "Secret"
+          :metadata {:name "backup-secret", :namespace "taiga"}
+          :type "Opaque"
+          :data
+          {:aws-access-key-id "YXdzLWlk",
+           :aws-secret-access-key "YXdzLXNlY3JldA==",
+           :restic-password "cmVzdGljLXB3"}}
+         (cut/generate-secret {:aws-access-key-id "aws-id"
+                               :aws-secret-access-key "aws-secret"
+                               :restic-password "restic-pw"})))
+  (is (= {:apiVersion "v1"
+          :kind "Secret"
+          :metadata {:name "backup-secret", :namespace "taiga"}
+          :type "Opaque"
+          :data
+          {:aws-access-key-id "YXdzLWlk",
+           :aws-secret-access-key "YXdzLXNlY3JldA==",
+           :restic-password "cmVzdGljLXB3"
+           :restic-new-password "bmV3LXJlc3RpYy1wdw=="}}
+         (cut/generate-secret {:aws-access-key-id "aws-id"
+                               :aws-secret-access-key "aws-secret"
+                               :restic-password "restic-pw"
+                               :restic-new-password "new-restic-pw"}))))
