@@ -2,7 +2,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: taiga-static-data
-  namespace: default
+  namespace: taiga
   labels:
     app: taiga
     app.kubernetes.part-of: taiga

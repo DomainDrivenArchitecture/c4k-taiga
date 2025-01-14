@@ -2,10 +2,10 @@ kind: Service
 apiVersion: v1
 metadata:
   name: taiga-protected
+  namespace: taiga
   labels:
     app.kubernetes.part-of: c4k-taiga
     app.kubernetes.io/component: taiga-protected
-  namespace: default
 spec:
   type: ClusterIP
   selector:

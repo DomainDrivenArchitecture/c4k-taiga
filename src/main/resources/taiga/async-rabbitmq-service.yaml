@@ -2,6 +2,7 @@ kind: Service
 apiVersion: v1
 metadata:
   name: taiga-async-rabbitmq
+  namespace: taiga
   labels:
     app.kubernetes.part-of: c4k-taiga
     app.kubernetes.io/component: taiga-async-rabbitmq
