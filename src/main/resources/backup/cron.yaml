@@ -17,7 +17,7 @@ spec:
           - name: backup-app
             image: domaindrivenarchitecture/c4k-taiga-backup
             imagePullPolicy: IfNotPresent
-            command: ["/entrypoint.sh"]
+            command: ["backup.bb"]
             env:
             - name: POSTGRES_USER
               valueFrom:
@@ -53,8 +53,6 @@ spec:
                   key: restic-repository
             - name: RESTIC_PASSWORD_FILE
               value: /var/run/secrets/backup-secrets/restic-password
-            - name: CERTIFICATE_FILE
-              value: ""
             volumeMounts:
             - name: taiga-media
               mountPath: /media

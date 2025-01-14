@@ -98,7 +98,7 @@ For more details about our repository model see: https://repo.prod.meissa.de/mei
 
 ## License
 
-Copyright © 2024 meissa GmbH
+Copyright © 2024, 2025 meissa GmbH
 Licensed under the [Apache License, Version 2.0](LICENSE) (the "License")
 Pls. find licenses of our subcomponents [here](doc/SUBCOMPONENT_LICENSE)
 
