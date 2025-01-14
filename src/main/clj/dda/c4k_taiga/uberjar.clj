@@ -4,12 +4,12 @@
    [dda.c4k-common.uberjar :as uberjar]
    [dda.c4k-taiga.core :as core]))
 
-
 (defn -main [& cmd-args]
-  (uberjar/main-common
+  (uberjar/main-cm
    "c4k-taiga"
    core/config?
    core/auth?
-   core/config-defaults
-   core/k8s-objects
+   core/defaults
+   core/config-objects
+   core/auth-objects
    cmd-args))

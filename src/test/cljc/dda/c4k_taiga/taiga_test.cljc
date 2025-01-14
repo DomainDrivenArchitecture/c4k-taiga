@@ -14,8 +14,8 @@
 (st/instrument `cut/generate-secret)
 
 #?(:cljs
-   (defmethod yaml/load-resource :nextcloud-test [resource-name]
-     (get (inline-resources "nextcloud-test") resource-name)))
+   (defmethod yaml/load-resource :taiga-test [resource-name]
+     (get (inline-resources "taiga-test") resource-name)))
 
 (deftest should-generate-configmap
   (is (= {:apiVersion "v1",
