@@ -1,27 +1,31 @@
 (ns dda.c4k-taiga.backup
  (:require
   [clojure.spec.alpha :as s]
-  #?(:cljs [shadow.resource :as rc])
+  #?(:clj [orchestra.core :refer [defn-spec]]
+     :cljs [orchestra.core :refer-macros [defn-spec]])
   [dda.c4k-common.yaml :as yaml]
   [dda.c4k-common.base64 :as b64]
   [dda.c4k-common.common :as cm]
-  [dda.c4k-common.predicate :as pd]))
+  [dda.c4k-common.predicate :as p]
+  #?(:cljs [dda.c4k-common.macros :refer-macros [inline-resources]])))
 
-(s/def ::aws-access-key-id pd/bash-env-string?)
-(s/def ::aws-secret-access-key pd/bash-env-string?)
-(s/def ::restic-password pd/bash-env-string?)
-(s/def ::restic-repository pd/bash-env-string?)
+(s/def ::aws-access-key-id p/bash-env-string?)
+(s/def ::aws-secret-access-key p/bash-env-string?)
+(s/def ::restic-password p/bash-env-string?)
+(s/def ::restic-new-password p/bash-env-string?)
+(s/def ::restic-repository p/bash-env-string?)
+
+(s/def ::config (s/keys :req-un [::restic-repository]))
+
+(s/def ::auth (s/keys :req-un [::restic-password ::aws-access-key-id ::aws-secret-access-key]
+                      :opt-un [::restic-new-password]))
 
 #?(:cljs
    (defmethod yaml/load-resource :backup [resource-name]
-     (case resource-name
-       "backup/config.yaml" (rc/inline "backup/config.yaml")
-       "backup/cron.yaml" (rc/inline "backup/cron.yaml")
-       "backup/secret.yaml" (rc/inline "backup/secret.yaml")
-       "backup/backup-restore-deployment.yaml" (rc/inline "backup/backup-restore-deployment.yaml")
-       (throw (js/Error. "Undefined Resource!")))))
+     (get (inline-resources "backup") resource-name)))
 
-(defn generate-config [my-conf]
+(defn-spec generate-config p/map-or-seq?
+  [my-conf ::config]
   (let [{:keys [restic-repository]} my-conf]
     (->
      (yaml/load-as-edn "backup/config.yaml")
