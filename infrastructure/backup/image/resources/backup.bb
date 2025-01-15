@@ -1,6 +1,5 @@
 #!/usr/bin/env bb
 (require
- '[babashka.tasks :as t]
  '[dda.backup.core :as bc]
  '[dda.backup.config :as cfg]
  '[dda.backup.restic :as rc]
@@ -25,8 +24,6 @@
   (bak/backup-file! (:file-config config))
   (bak/backup-db! (:db-config config)))
 
-(t/shell "start-maintenance.sh")
 (prepare!)
 (restic-repo-init!)
 (restic-backup!)
-(t/shell "end-maintenance.sh")

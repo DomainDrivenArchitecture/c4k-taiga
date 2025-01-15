@@ -18,7 +18,6 @@
   (pg/drop-create-db! (:db-config config))
   (rs/restore-db! (:db-config config))
   (rs/restore-file! (:file-restore-config config))
-  (t/shell "mv /var/backups/restore/* /media")
   (t/shell "chown -R 999:999 /media"))
 
 (prepare!)
