@@ -6,7 +6,7 @@ metadata:
   labels:
     app.kubernetes.part-of: c4k-taiga
     app.kubernetes.io/component: taiga-async-rabbitmq
-  namespace: default
+  namespace: taiga
 spec:
   type: ClusterIP
   selector:

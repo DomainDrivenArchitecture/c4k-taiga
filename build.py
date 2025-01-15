@@ -152,6 +152,7 @@ def upload_clj(project):
 
 @task
 def inst(project):
+    run("lein uberjar", shell=True, check=True)
     package_uberjar(project)
     package_native(project)
     run(
