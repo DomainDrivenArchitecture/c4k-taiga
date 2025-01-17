@@ -27,9 +27,6 @@ public/js/
 *.iml
 .idea/
 
-auth.edn
-config.edn
-
 build-and-move-frontend.sh
 website.yaml
 
