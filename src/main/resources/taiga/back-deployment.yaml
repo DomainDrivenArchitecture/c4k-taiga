@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: taiga-back-deployment
+  namespace: taiga
   labels:
     app.kubernetes.part-of: c4k-taiga
     app.kubernetes.io/component: taiga-back
@@ -20,7 +21,7 @@ spec:
         image: taigaio/taiga-back:latest 
         imagePullPolicy: IfNotPresent
         command: ["/bin/bash"]
-        args: ["-c", "source /opt/venv/bin/activate && CELERY_ENABLE=true python manage.py migrate && sleep 15 && python manage.py createsuperuser --noinput"]
+        args: ["-c", "source /opt/venv/bin/activate && CELERY_ENABLE=true python manage.py migrate && sleep 15"]
         ports:
         - name: http
           containerPort: 8000

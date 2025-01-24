@@ -2,10 +2,11 @@ kind: Service
 apiVersion: v1
 metadata:
   name: taiga-events-rabbitmq
+  namespace: taiga
   labels:
     app.kubernetes.part-of: c4k-taiga
     app.kubernetes.io/component: taiga-events-rabbitmq
-  namespace: default
+  namespace: taiga
 spec:
   type: ClusterIP
   selector:

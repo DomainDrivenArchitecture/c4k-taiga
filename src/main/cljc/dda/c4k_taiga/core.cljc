@@ -9,57 +9,103 @@
    [dda.c4k-common.monitoring :as mon]
    [dda.c4k-taiga.taiga :as taiga]
    [dda.c4k-taiga.backup :as backup]
-   [dda.c4k-common.postgres :as postgres]))
+   [dda.c4k-common.postgres :as postgres]
+   [dda.c4k-common.namespace :as ns]))
 
-(def default-storage-class :local-path)
+(def defaults {:namespace "taiga"
+               :issuer "staging"
+               :storage-class-name "local-path"
+               :pv-storage-size-gb "5"
+               :storage-media-size "5"
+               :storage-static-size "5"
+               :storage-async-rabbitmq-size "5"
+               :storage-events-rabbitmq-size "5"
+               :public-register-enabled "false"
+               :enable-telemetry "false"})
 
-(def config? taiga/config?)
-(def auth? taiga/auth?)
+(def config? (s/merge
+              ::backup/config
+              (s/keys :req-un [::taiga/fqdn]
+                      :opt-un [::taiga/issuer
+                               ::taiga/storage-class-name
+                               ::taiga/storage-media-size
+                               ::taiga/storage-static-size
+                               ::taiga/storage-async-rabbitmq-size
+                               ::taiga/storage-events-rabbitmq-size
+                               ::taiga/public-register-enabled
+                               ::taiga/enable-telemetry
+                               ::postgres/pv-storage-size-gb
+                               ::mon/mon-cfg])))
 
-(def config-defaults taiga/config-defaults)
+(def auth? (s/merge
+            ::backup/auth
+            (s/keys :req-un [::postgres/postgres-db-user
+                             ::postgres/postgres-db-password
+                             ::taiga/taiga-secret-key
+                             ::taiga/mailer-pw
+                             ::taiga/mailer-user
+                             ::taiga/django-superuser-email
+                             ::taiga/django-superuser-password
+                             ::taiga/django-superuser-username
+                             ::taiga/rabbitmq-erlang-cookie
+                             ::taiga/rabbitmq-pw
+                             ::taiga/rabbitmq-user
+                             ::mon/mon-auth])))
 
-(defn-spec k8s-objects cp/map-or-seq?
-  [config taiga/config?
-   auth taiga/auth?]  
-  (cm/concat-vec
-   (map yaml/to-string
-        (filter
-         #(not (nil? %))
-         (cm/concat-vec
-          [(postgres/generate-config {:postgres-size :8gb :db-name "taiga"})
-           (postgres/generate-secret auth)
-           (postgres/generate-pvc {:pv-storage-size-gb 50
-                                   :pvc-storage-class-name default-storage-class})
-           (postgres/generate-deployment)
-           (postgres/generate-service)
-           (taiga/generate-async-deployment)
-           (taiga/generate-async-rabbitmq-deployment)
-           (taiga/generate-async-rabbitmq-service)
-           (taiga/generate-async-service)
-           (taiga/generate-back-deployment)
-           (taiga/generate-back-service)
-           (taiga/generate-configmap config)
-           (taiga/generate-pvc-taiga-media-data config)
-           (taiga/generate-pvc-taiga-static-data config)
-           (taiga/generate-events-deployment)
-           (taiga/generate-events-rabbitmq-deployment)
-           (taiga/generate-events-rabbitmq-service)
-           (taiga/generate-events-service)
-           (taiga/generate-front-deployment)
-           (taiga/generate-front-service)
-           (taiga/generate-gateway-configmap)
-           (taiga/generate-gateway-deployment)
-           (taiga/generate-gateway-service)
-           (taiga/generate-protected-deployment)
-           (taiga/generate-protected-service)
-           (taiga/generate-rabbitmq-pvc-async config)
-           (taiga/generate-rabbitmq-pvc-events config)
-           (taiga/generate-secret auth)]
-          (taiga/generate-ingress-and-cert config)
-          (when (contains? config :restic-repository)
-            [(backup/generate-config config)
-             (backup/generate-secret auth)
-             (backup/generate-cron)
-             (backup/generate-backup-restore-deployment config)])
-          (when (:contains? config :mon-cfg)
-            (mon/generate (:mon-cfg config) (:mon-auth auth))))))))
+(defn-spec config-objects cp/map-or-seq?
+  [config config?]
+  (let [resolved-config (merge defaults config)]
+    (cm/concat-vec
+     (map yaml/to-string
+          (filter
+           #(not (nil? %))
+           (cm/concat-vec
+            (ns/generate resolved-config)
+            (postgres/generate-config (merge resolved-config
+                                             {:postgres-size :8gb :db-name "taiga"
+                                              :pv-storage-size-gb 50}))
+            [(taiga/generate-async-deployment)
+             (taiga/generate-async-rabbitmq-deployment)
+             (taiga/generate-async-rabbitmq-service)
+             (taiga/generate-async-service)
+             (taiga/generate-back-deployment)
+             (taiga/generate-back-service)
+             (taiga/generate-configmap resolved-config)
+             (taiga/generate-pvc-taiga-media-data resolved-config)
+             (taiga/generate-pvc-taiga-static-data resolved-config)
+             (taiga/generate-events-deployment)
+             (taiga/generate-events-rabbitmq-deployment)
+             (taiga/generate-events-rabbitmq-service)
+             (taiga/generate-events-service)
+             (taiga/generate-front-deployment)
+             (taiga/generate-front-service)
+             (taiga/generate-gateway-configmap)
+             (taiga/generate-gateway-deployment)
+             (taiga/generate-gateway-service)
+             (taiga/generate-protected-deployment)
+             (taiga/generate-protected-service)
+             (taiga/generate-rabbitmq-pvc-async resolved-config)
+             (taiga/generate-rabbitmq-pvc-events resolved-config)]
+            (taiga/generate-ingress-and-cert resolved-config)
+            (when (contains? resolved-config :restic-repository)
+              [(backup/generate-config resolved-config)
+               (backup/generate-cron)
+               (backup/generate-backup-restore-deployment resolved-config)])
+            (when (:contains? resolved-config :mon-cfg)
+              (mon/generate-config))))))))
+
+(defn-spec auth-objects cp/map-or-seq?
+  [config config?
+   auth auth?]
+  (let [resolved-config (merge defaults config)]
+    (cm/concat-vec
+     (map yaml/to-string
+          (filter
+           #(not (nil? %))
+           (cm/concat-vec
+            (postgres/generate-auth resolved-config auth)
+            [(taiga/generate-secret auth)]            
+            (when (contains? resolved-config :restic-repository)
+              [(backup/generate-secret auth)])
+            (when (:contains? resolved-config :mon-cfg)
+              (mon/generate-auth (:mon-cfg resolved-config) (:mon-auth auth)))))))))

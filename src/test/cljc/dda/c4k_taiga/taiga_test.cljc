@@ -1,23 +1,26 @@
 (ns dda.c4k-taiga.taiga-test
   (:require
-   #?(:cljs [shadow.resource :as rc])
+   #?(:cljs [dda.c4k-common.macros :refer-macros [inline-resources]])
    #?(:clj [clojure.test :refer [deftest is are testing run-tests]]
       :cljs [cljs.test :refer-macros [deftest is are testing run-tests]])
-   [clojure.spec.alpha :as s]
+   [clojure.spec.test.alpha :as st]
    [dda.c4k-common.yaml :as yaml]
    [dda.c4k-taiga.taiga :as cut]))
 
+(st/instrument `cut/generate-configmap)
+(st/instrument `cut/generate-pvc-taiga-media-data)
+(st/instrument `cut/generate-rabbitmq-pvc-async)
+(st/instrument `cut/generate-rabbitmq-pvc-events)
+(st/instrument `cut/generate-secret)
+
 #?(:cljs
    (defmethod yaml/load-resource :taiga-test [resource-name]
-     (case resource-name
-       "taiga-test/valid-config.yaml" (rc/inline "taiga-test/valid-config.yaml")
-       "taiga-test/valid-auth.yaml" (rc/inline "taiga-test/valid-auth.yaml")
-       (throw (js/Error. "Undefined Resource!")))))
+     (get (inline-resources "taiga-test") resource-name)))
 
 (deftest should-generate-configmap
   (is (= {:apiVersion "v1",
           :kind "ConfigMap",
-          :metadata {:name "taiga-configmap", :namespace "default"},
+          :metadata {:name "taiga-configmap", :namespace "taiga"},
           :data
           {:ENABLE_TELEMETRY "false",
            :TAIGA_SITES_SCHEME "https",
@@ -39,20 +42,18 @@
           :kind "PersistentVolumeClaim",
           :metadata
           {:name "taiga-media-data",
-           :namespace "default",
+           :namespace "taiga"
            :labels {:app "taiga", :app.kubernetes.part-of "taiga"}},
           :spec
           {:storageClassName "local-path",
            :accessModes ["ReadWriteOnce"],
            :resources {:requests {:storage "2Gi"}}}}
-         (cut/generate-pvc-taiga-media-data (yaml/load-as-edn "taiga-test/valid-config.yaml")))))
-
-(deftest should-generate-pvc-taiga-static-data
+         (cut/generate-pvc-taiga-media-data (yaml/load-as-edn "taiga-test/valid-config.yaml"))))
   (is (= {:apiVersion "v1",
           :kind "PersistentVolumeClaim",
           :metadata
           {:name "taiga-static-data",
-           :namespace "default",
+           :namespace "taiga"
            :labels {:app "taiga", :app.kubernetes.part-of "taiga"}},
           :spec
           {:storageClassName "local-path",
@@ -65,20 +66,20 @@
           :kind "PersistentVolumeClaim",
           :metadata
           {:name "taiga-async-rabbitmq-data",
-           :namespace "default",
+           :namespace "taiga"
            :labels {:app "taiga", :app.kubernetes.part-of "taiga"}},
           :spec
           {:storageClassName "local-path",
            :accessModes ["ReadWriteOnce"],
            :resources {:requests {:storage "4Gi"}}}}
-         (cut/generate-rabbitmq-pvc-async(yaml/load-as-edn "taiga-test/valid-config.yaml")))))
+         (cut/generate-rabbitmq-pvc-async (yaml/load-as-edn "taiga-test/valid-config.yaml")))))
 
 (deftest should-generate-rabbitmq-pvc-events
   (is (= {:apiVersion "v1",
           :kind "PersistentVolumeClaim",
           :metadata
           {:name "taiga-events-rabbitmq-data",
-           :namespace "default",
+           :namespace "taiga"
            :labels {:app "taiga", :app.kubernetes.part-of "taiga"}},
           :spec
           {:storageClassName "local-path",
@@ -90,7 +91,7 @@
   (is (= {:apiVersion "v1",
           :kind "Secret",
           :metadata
-          {:name "taiga-secret", :labels {:app.kubernetes.part-of "taiga"}},
+          {:name "taiga-secret", :namespace "taiga" :labels {:app.kubernetes.part-of "taiga"}},
           :data
           {:TAIGA_SECRET_KEY "c29tZS1rZXk=",
            :EMAIL_HOST_USER "bWFpbGVyLXVzZXI=",
