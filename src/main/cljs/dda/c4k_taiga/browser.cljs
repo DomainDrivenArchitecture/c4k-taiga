@@ -12,16 +12,20 @@
      (cm/concat-vec
       (br/generate-group
        "config"
-       (br/generate-text-area "config" "Your config.edn:" "{:fqdn \"taiga.your.domain\"
+       (br/generate-text-area
+        "config" "Your config.edn:"
+        "{:fqdn \"taiga.your.domain\"
  :issuer \"staging\"
  :restic-repository \"s3://yourbucket/your-repo\"
  :mon-cfg {:cluster-name \"taiga\"
                  :cluster-stage \"test\"
                  :grafana-cloud-url \"https://prometheus-prod-01-eu-west-0.grafana.net/api/prom/push\"}}"
-                              "6"))
+        "6"))
       (br/generate-group
        "auth"
-       (br/generate-text-area "auth" "Your auth.edn:" "{:postgres-db-user \"taiga\"
+       (br/generate-text-area 
+        "auth" "Your auth.edn:" 
+        "{:postgres-db-user \"taiga\"
  :postgres-db-password \"db-password\"
  :mailer-user \"mail[at]example.com\"
  :mailer-pw \"change-me\"
@@ -74,4 +78,4 @@
                                    false)
                                   (br/set-output!)))))
   (add-validate-listener "config")
-  (add-validate-listener "authr"))
+  (add-validate-listener "auth"))
