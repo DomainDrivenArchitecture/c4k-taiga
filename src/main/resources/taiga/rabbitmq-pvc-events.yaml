@@ -4,8 +4,7 @@ metadata:
   name: taiga-events-rabbitmq-data
   namespace: taiga
   labels:
-    app: taiga
-    app.kubernetes.part-of: taiga
+    app.kubernetes.part-of: c4k-taiga
 spec:
   storageClassName: REPLACEME
   accessModes:

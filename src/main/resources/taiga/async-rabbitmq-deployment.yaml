@@ -48,7 +48,6 @@ spec:
             configMapKeyRef:
               name: taiga-configmap
               key: RABBITMQ_DEFAULT_VHOST
-      
       volumes:
         - name: taiga-async-rabbitmq-data
           persistentVolumeClaim:

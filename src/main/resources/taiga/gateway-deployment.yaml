@@ -34,7 +34,6 @@ spec:
         - name: taiga-media
           mountPath: /taiga/media
           readOnly: false
-
       volumes: 
         - name: taiga-gateway-configmap
           configMap:

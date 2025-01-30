@@ -15,7 +15,7 @@ spec:
       labels:
         app: backup-restore
         app.kubernetes.io/name: backup-restore
-        app.kubernetes.io/part-of: taiga
+        app.kubernetes.io/part-of: c4k-taiga
     spec:
       containers:
       - image: domaindrivenarchitecture/c4k-taiga-backup

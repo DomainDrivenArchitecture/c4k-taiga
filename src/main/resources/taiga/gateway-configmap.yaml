@@ -3,6 +3,8 @@ kind: ConfigMap
 metadata:
   name: taiga-gateway-configmap
   namespace: taiga
+  labels:
+    app.kubernetes.part-of: c4k-taiga
 data:
   default.conf: |
     server {

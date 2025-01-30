@@ -4,7 +4,7 @@ metadata:
   name: taiga-backup
   namespace: taiga
   labels:
-    app.kubernetes.part-of: taiga
+    app.kubernetes.part-of: c4k-taiga
 spec:
   schedule: "10 23 * * *"
   successfulJobsHistoryLimit: 1

@@ -15,7 +15,7 @@
           :metadata {:name "backup-config"
                      :namespace "taiga"
                      :labels {:app.kubernetes.io/name "backup"
-                              :app.kubernetes.io/part-of "taiga"}}
+                              :app.kubernetes.io/part-of "c4k-taiga"}}
           :data
           {:restic-repository "s3:restic-repository"}}
          (cut/generate-config {:restic-repository "s3:restic-repository"}))))

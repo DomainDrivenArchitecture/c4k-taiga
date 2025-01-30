@@ -3,6 +3,8 @@ kind: ConfigMap
 metadata:
   name: taiga-configmap
   namespace: taiga
+  labels:
+    app.kubernetes.part-of: c4k-taiga
 data:
   # These environment variables will be used by taiga-back and taiga-async.
   # Database settings handled in deployment

@@ -5,6 +5,6 @@ metadata:
   namespace: taiga
   labels:
     app.kubernetes.io/name: backup
-    app.kubernetes.io/part-of: taiga
+    app.kubernetes.io/part-of: c4k-taiga
 data:
   restic-repository: restic-repository

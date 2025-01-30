@@ -20,7 +20,9 @@
 (deftest should-generate-configmap
   (is (= {:apiVersion "v1",
           :kind "ConfigMap",
-          :metadata {:name "taiga-configmap", :namespace "taiga"},
+          :metadata 
+          {:name "taiga-configmap", :namespace "taiga"
+           :labels {:app.kubernetes.part-of "c4k-taiga"}},
           :data
           {:ENABLE_TELEMETRY "false",
            :TAIGA_SITES_SCHEME "https",
@@ -43,7 +45,7 @@
           :metadata
           {:name "taiga-media-data",
            :namespace "taiga"
-           :labels {:app "taiga", :app.kubernetes.part-of "taiga"}},
+           :labels {:app.kubernetes.part-of "c4k-taiga"}},
           :spec
           {:storageClassName "local-path",
            :accessModes ["ReadWriteOnce"],
@@ -54,7 +56,7 @@
           :metadata
           {:name "taiga-static-data",
            :namespace "taiga"
-           :labels {:app "taiga", :app.kubernetes.part-of "taiga"}},
+           :labels {:app.kubernetes.part-of "c4k-taiga"}},
           :spec
           {:storageClassName "local-path",
            :accessModes ["ReadWriteOnce"],
@@ -67,7 +69,7 @@
           :metadata
           {:name "taiga-async-rabbitmq-data",
            :namespace "taiga"
-           :labels {:app "taiga", :app.kubernetes.part-of "taiga"}},
+           :labels {:app.kubernetes.part-of "c4k-taiga"}},
           :spec
           {:storageClassName "local-path",
            :accessModes ["ReadWriteOnce"],
@@ -80,7 +82,7 @@
           :metadata
           {:name "taiga-events-rabbitmq-data",
            :namespace "taiga"
-           :labels {:app "taiga", :app.kubernetes.part-of "taiga"}},
+           :labels {:app.kubernetes.part-of "c4k-taiga"}},
           :spec
           {:storageClassName "local-path",
            :accessModes ["ReadWriteOnce"],
@@ -91,7 +93,7 @@
   (is (= {:apiVersion "v1",
           :kind "Secret",
           :metadata
-          {:name "taiga-secret", :namespace "taiga" :labels {:app.kubernetes.part-of "taiga"}},
+          {:name "taiga-secret", :namespace "taiga" :labels {:app.kubernetes.part-of "c4k-taiga"}},
           :data
           {:TAIGA_SECRET_KEY "c29tZS1rZXk=",
            :EMAIL_HOST_USER "bWFpbGVyLXVzZXI=",

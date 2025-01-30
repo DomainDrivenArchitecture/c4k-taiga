@@ -48,7 +48,6 @@ spec:
             secretKeyRef:
               name: taiga-secret
               key: RABBITMQ_PASS
-      
       volumes:
         - name: taiga-events-rabbitmq-data
           persistentVolumeClaim:
