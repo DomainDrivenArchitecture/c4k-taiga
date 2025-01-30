@@ -12,16 +12,16 @@
    [dda.c4k-common.postgres :as postgres]
    [dda.c4k-common.namespace :as ns]))
 
-(def defaults {:namespace "taiga"
-               :issuer "staging"
-               :storage-class-name "local-path"
-               :pv-storage-size-gb "5"
-               :storage-media-size "5"
-               :storage-static-size "5"
-               :storage-async-rabbitmq-size "5"
-               :storage-events-rabbitmq-size "5"
-               :public-register-enabled "false"
-               :enable-telemetry "false"})
+(def config-defaults {:namespace "taiga"
+                      :issuer "staging"
+                      :storage-class-name "local-path"
+                      :pv-storage-size-gb "5"
+                      :storage-media-size "5"
+                      :storage-static-size "5"
+                      :storage-async-rabbitmq-size "5"
+                      :storage-events-rabbitmq-size "5"
+                      :public-register-enabled "false"
+                      :enable-telemetry "false"})
 
 (def config? (s/merge
               ::backup/config
@@ -54,7 +54,7 @@
 
 (defn-spec config-objects cp/map-or-seq?
   [config config?]
-  (let [resolved-config (merge defaults config)]
+  (let [resolved-config (merge config-defaults config)]
     (cm/concat-vec
      (map yaml/to-string
           (filter
@@ -97,7 +97,7 @@
 (defn-spec auth-objects cp/map-or-seq?
   [config config?
    auth auth?]
-  (let [resolved-config (merge defaults config)]
+  (let [resolved-config (merge config-defaults config)]
     (cm/concat-vec
      (map yaml/to-string
           (filter

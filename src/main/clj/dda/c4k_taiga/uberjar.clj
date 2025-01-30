@@ -9,7 +9,7 @@
    "c4k-taiga"
    core/config?
    core/auth?
-   core/defaults
+   core/config-defaults
    core/config-objects
    core/auth-objects
    cmd-args))

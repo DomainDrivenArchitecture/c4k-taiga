@@ -1,0 +1,1772 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: taiga
+
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: postgres-pv-volume
+  labels:
+    type: local
+  namespace: taiga
+spec:
+  storageClassName: manual
+  accessModes:
+  - ReadWriteOnce
+  capacity:
+    storage: 50Gi
+  hostPath:
+    path: /var/postgres
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config
+  labels:
+    app: postgres
+  namespace: taiga
+data:
+  postgres-db: taiga
+  postgresql.conf: |
+    max_connections = 700
+    work_mem = 3MB
+    shared_buffers = 2048MB
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-claim
+  labels:
+    app: postgres
+  namespace: taiga
+spec:
+  storageClassName: manual
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgresql
+  namespace: taiga
+spec:
+  selector:
+    matchLabels:
+      app: postgresql
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: postgresql
+    spec:
+      containers:
+      - image: postgres:13
+        name: postgresql
+        env:
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: postgres-user
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: postgres-password
+        - name: POSTGRES_DB
+          valueFrom:
+            configMapKeyRef:
+              name: postgres-config
+              key: postgres-db
+        - name: PGDATA
+          value: /var/lib/postgresql/data/db/
+        ports:
+        - containerPort: 5432
+          name: postgresql
+        volumeMounts:
+        - name: postgres-config-volume
+          mountPath: /etc/postgresql/postgresql.conf
+          subPath: postgresql.conf
+          readOnly: true
+        - name: postgre-data-volume
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: postgres-config-volume
+        configMap:
+          name: postgres-config
+      - name: postgre-data-volume
+        persistentVolumeClaim:
+          claimName: postgres-claim
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgresql-service
+  namespace: taiga
+spec:
+  selector:
+    app: postgresql
+  ports:
+  - port: 5432
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: taiga-async-deployment
+  namespace: taiga
+  labels:
+    app.kubernetes.part-of: c4k-taiga
+    app.kubernetes.io/component: taiga-async
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: taiga-async
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: taiga-async
+    spec:
+      containers:
+      - name: taiga-async
+        image: taigaio/taiga-back:latest
+        imagePullPolicy: IfNotPresent
+        command:
+        - /taiga-back/docker/async_entrypoint.sh
+        ports:
+        - name: http
+          containerPort: 8000
+        volumeMounts:
+        - name: taiga-static
+          mountPath: /taiga-back/static
+          readOnly: false
+        - name: taiga-media
+          mountPath: /taiga-back/media
+          readOnly: false
+        envFrom:
+        - configMapRef:
+            name: taiga-configmap
+        - secretRef:
+            name: taiga-secret
+        env:
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: postgres-user
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: postgres-password
+        - name: POSTGRES_DB
+          valueFrom:
+            configMapKeyRef:
+              name: postgres-config
+              key: postgres-db
+        - name: POSTGRES_HOST
+          value: postgresql-service
+        - name: POSTGRES_PORT
+          value: '5432'
+      volumes:
+      - name: taiga-static
+        persistentVolumeClaim:
+          claimName: taiga-static-data
+      - name: taiga-media
+        persistentVolumeClaim:
+          claimName: taiga-media-data
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: taiga-async-rabbitmq-deployment
+  namespace: taiga
+  labels:
+    app.kubernetes.part-of: c4k-taiga
+    app.kubernetes.io/component: taiga-async-rabbitmq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: taiga-async-rabbitmq
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: taiga-async-rabbitmq
+    spec:
+      containers:
+      - name: taiga-async-rabbitmq
+        image: rabbitmq:3.8-management-alpine
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: amqp
+          containerPort: 5672
+        volumeMounts:
+        - name: taiga-async-rabbitmq-data
+          mountPath: /var/lib/rabbitmq
+          readOnly: false
+        env:
+        - name: RABBITMQ_DEFAULT_USER
+          valueFrom:
+            secretKeyRef:
+              name: taiga-secret
+              key: RABBITMQ_USER
+        - name: RABBITMQ_DEFAULT_PASS
+          valueFrom:
+            secretKeyRef:
+              name: taiga-secret
+              key: RABBITMQ_PASS
+        - name: RABBITMQ_ERLANG_COOKIE
+          valueFrom:
+            secretKeyRef:
+              name: taiga-secret
+              key: RABBITMQ_ERLANG_COOKIE
+        - name: RABBITMQ_DEFAULT_VHOST
+          valueFrom:
+            configMapKeyRef:
+              name: taiga-configmap
+              key: RABBITMQ_DEFAULT_VHOST
+      volumes:
+      - name: taiga-async-rabbitmq-data
+        persistentVolumeClaim:
+          claimName: taiga-async-rabbitmq-data
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: taiga-async-rabbitmq
+  labels:
+    app.kubernetes.part-of: c4k-taiga
+    app.kubernetes.io/component: taiga-async-rabbitmq
+  namespace: taiga
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/component: taiga-async-rabbitmq
+  ports:
+  - name: amqp
+    targetPort: amqp
+    port: 5672
+    protocol: TCP
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: taiga-async
+  labels:
+    app.kubernetes.part-of: c4k-taiga
+    app.kubernetes.io/component: taiga-async
+  namespace: taiga
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/component: taiga-async
+  ports:
+  - name: http
+    targetPort: http
+    port: 8000
+    protocol: TCP
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: taiga-back-deployment
+  namespace: taiga
+  labels:
+    app.kubernetes.part-of: c4k-taiga
+    app.kubernetes.io/component: taiga-back
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: taiga-back
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: taiga-back
+    spec:
+      initContainers:
+      - name: taiga-manage
+        image: taigaio/taiga-back:latest
+        imagePullPolicy: IfNotPresent
+        command:
+        - /bin/bash
+        args:
+        - -c
+        - source /opt/venv/bin/activate && CELERY_ENABLE=true python manage.py migrate && sleep 15
+        ports:
+        - name: http
+          containerPort: 8000
+        volumeMounts:
+        - name: taiga-static
+          mountPath: /taiga-back/static
+          readOnly: false
+        - name: taiga-media
+          mountPath: /taiga-back/media
+          readOnly: false
+        envFrom:
+        - configMapRef:
+            name: taiga-configmap
+        - secretRef:
+            name: taiga-secret
+        env:
+        - name: CELERY_ENABLED
+          value: 'false'
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: postgres-user
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: postgres-password
+        - name: POSTGRES_DB
+          valueFrom:
+            configMapKeyRef:
+              name: postgres-config
+              key: postgres-db
+        - name: POSTGRES_HOST
+          value: postgresql-service
+        - name: POSTGRES_PORT
+          value: '5432'
+      containers:
+      - name: taiga-back
+        image: taigaio/taiga-back:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 8000
+        volumeMounts:
+        - name: taiga-static
+          mountPath: /taiga-back/static
+          readOnly: false
+        - name: taiga-media
+          mountPath: /taiga-back/media
+          readOnly: false
+        envFrom:
+        - configMapRef:
+            name: taiga-configmap
+        - secretRef:
+            name: taiga-secret
+        env:
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: postgres-user
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: postgres-password
+        - name: POSTGRES_DB
+          valueFrom:
+            configMapKeyRef:
+              name: postgres-config
+              key: postgres-db
+        - name: POSTGRES_HOST
+          value: postgresql-service
+        - name: POSTGRES_PORT
+          value: '5432'
+      volumes:
+      - name: taiga-static
+        persistentVolumeClaim:
+          claimName: taiga-static-data
+      - name: taiga-media
+        persistentVolumeClaim:
+          claimName: taiga-media-data
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: taiga-back
+  namespace: taiga
+  labels:
+    app.kubernetes.part-of: c4k-taiga
+    app.kubernetes.io/component: taiga-back
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/component: taiga-back
+  ports:
+  - name: http
+    targetPort: http
+    port: 8000
+    protocol: TCP
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: taiga-configmap
+  namespace: taiga
+data:
+  ENABLE_TELEMETRY: 'false'
+  TAIGA_SITES_SCHEME: https
+  TAIGA_SITES_DOMAIN: taiga.test.meissa.de
+  TAIGA_SUBPATH: ''
+  TAIGA_URL: https://taiga.test.meissa.de
+  TAIGA_WEBSOCKETS_URL: wss://taiga.test.meissa.de
+  PUBLIC_REGISTER_ENABLED: 'false'
+  ENABLE_GITHUB_IMPORTER: 'false'
+  ENABLE_JIRA_IMPORTER: 'false'
+  ENABLE_TRELLO_IMPORTER: 'false'
+  RABBITMQ_DEFAULT_VHOST: taiga
+  SESSION_COOKIE_SECURE: 'False'
+  CSRF_COOKIE_SECURE: 'False'
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: taiga-media-data
+  namespace: taiga
+  labels:
+    app: taiga
+    app.kubernetes.part-of: taiga
+spec:
+  storageClassName: local-path
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: taiga-static-data
+  namespace: taiga
+  labels:
+    app: taiga
+    app.kubernetes.part-of: taiga
+spec:
+  storageClassName: local-path
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 3Gi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: taiga-events-deployment
+  namespace: taiga
+  labels:
+    app.kubernetes.part-of: c4k-taiga
+    app.kubernetes.io/component: taiga-events
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: taiga-events
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: taiga-events
+    spec:
+      containers:
+      - name: taiga-events
+        image: taigaio/taiga-events:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 8888
+        env:
+        - name: RABBITMQ_USER
+          valueFrom:
+            secretKeyRef:
+              name: taiga-secret
+              key: RABBITMQ_USER
+        - name: RABBITMQ_PASS
+          valueFrom:
+            secretKeyRef:
+              name: taiga-secret
+              key: RABBITMQ_PASS
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: taiga-secret
+              key: TAIGA_SECRET_KEY
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: taiga-events-rabbitmq-deployment
+  namespace: taiga
+  labels:
+    app.kubernetes.part-of: c4k-taiga
+    app.kubernetes.io/component: taiga-events-rabbitmq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: taiga-events-rabbitmq
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: taiga-events-rabbitmq
+    spec:
+      containers:
+      - name: taiga-events-rabbitmq
+        image: rabbitmq:3.8-management-alpine
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: amqp
+          containerPort: 5672
+        volumeMounts:
+        - name: taiga-events-rabbitmq-data
+          mountPath: /var/lib/rabbitmq
+          readOnly: false
+        env:
+        - name: RABBITMQ_ERLANG_COOKIE
+          valueFrom:
+            secretKeyRef:
+              name: taiga-secret
+              key: RABBITMQ_ERLANG_COOKIE
+        - name: RABBITMQ_DEFAULT_VHOST
+          valueFrom:
+            configMapKeyRef:
+              name: taiga-configmap
+              key: RABBITMQ_DEFAULT_VHOST
+        - name: RABBITMQ_DEFAULT_USER
+          valueFrom:
+            secretKeyRef:
+              name: taiga-secret
+              key: RABBITMQ_USER
+        - name: RABBITMQ_DEFAULT_PASS
+          valueFrom:
+            secretKeyRef:
+              name: taiga-secret
+              key: RABBITMQ_PASS
+      volumes:
+      - name: taiga-events-rabbitmq-data
+        persistentVolumeClaim:
+          claimName: taiga-events-rabbitmq-data
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: taiga-events-rabbitmq
+  labels:
+    app.kubernetes.part-of: c4k-taiga
+    app.kubernetes.io/component: taiga-events-rabbitmq
+  namespace: taiga
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/component: taiga-events-rabbitmq
+  ports:
+  - name: amqp
+    targetPort: amqp
+    port: 5672
+    protocol: TCP
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: taiga-events
+  namespace: taiga
+  labels:
+    app.kubernetes.part-of: c4k-taiga
+    app.kubernetes.io/component: taiga-events
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/component: taiga-events
+  ports:
+  - name: http
+    targetPort: http
+    port: 8888
+    protocol: TCP
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: taiga-front-deployment
+  namespace: taiga
+  labels:
+    app.kubernetes.part-of: c4k-taiga
+    app.kubernetes.io/component: taiga-front
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: taiga-front
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: taiga-front
+    spec:
+      containers:
+      - name: taiga-front
+        image: taigaio/taiga-front:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 80
+        env:
+        - name: TAIGA_URL
+          valueFrom:
+            configMapKeyRef:
+              name: taiga-configmap
+              key: TAIGA_URL
+        - name: TAIGA_SUBPATH
+          valueFrom:
+            configMapKeyRef:
+              name: taiga-configmap
+              key: TAIGA_SUBPATH
+        - name: TAIGA_WEBSOCKETS_URL
+          valueFrom:
+            configMapKeyRef:
+              name: taiga-configmap
+              key: TAIGA_WEBSOCKETS_URL
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: taiga-front
+  namespace: taiga
+  labels:
+    app.kubernetes.part-of: c4k-taiga
+    app.kubernetes.io/component: taiga-front
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/component: taiga-front
+  ports:
+  - name: http
+    targetPort: http
+    port: 80
+    protocol: TCP
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: taiga-gateway-configmap
+  namespace: taiga
+data:
+  default.conf: |-
+    server {
+        listen 80 default_server;
+
+        client_max_body_size 100M;
+        charset utf-8;
+
+        # Frontend
+        location / {
+            proxy_pass http://taiga-front/;
+            proxy_pass_header Server;
+            proxy_set_header Host $http_host;
+            proxy_redirect off;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Scheme $scheme;
+        }
+
+        # Api
+        location /api {
+            proxy_pass http://taiga-back:8000/api;
+            proxy_pass_header Server;
+            proxy_set_header Host $http_host;
+            proxy_redirect off;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Scheme $scheme;
+        }
+
+        # Admin
+        location /admin {
+            proxy_pass http://taiga-back:8000/admin;
+            proxy_pass_header Server;
+            proxy_set_header Host $http_host;
+            proxy_redirect off;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Scheme $scheme;
+        }
+
+        # Static
+        location /static {
+            root /taiga;
+        }
+
+        # Media
+        location /_protected {
+            internal;
+            alias /taiga/media/;
+            add_header Content-disposition "attachment";
+        }
+
+        # Unprotected section
+        location /media/exports {
+            alias /taiga/media/exports/;
+            add_header Content-disposition "attachment";
+        }
+
+        location /media {
+            proxy_set_header Host $http_host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Scheme $scheme;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_pass http://taiga-protected:8003/;
+            proxy_redirect off;
+        }
+
+        # Events
+        location /events {
+            proxy_pass http://taiga-events:8888/events;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+            proxy_connect_timeout 7d;
+            proxy_send_timeout 7d;
+            proxy_read_timeout 7d;
+        }
+    }
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: taiga-gateway-deployment
+  namespace: taiga
+  labels:
+    app.kubernetes.part-of: c4k-taiga
+    app.kubernetes.io/component: taiga-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: taiga-gateway
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: taiga-gateway
+    spec:
+      restartPolicy: Always
+      containers:
+      - name: taiga-gateway
+        image: nginx:1.19-alpine
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 80
+        volumeMounts:
+        - name: taiga-gateway-configmap
+          mountPath: /etc/nginx/conf.d
+          readOnly: false
+        - name: taiga-static
+          mountPath: /taiga/static
+          readOnly: false
+        - name: taiga-media
+          mountPath: /taiga/media
+          readOnly: false
+      volumes:
+      - name: taiga-gateway-configmap
+        configMap:
+          name: taiga-gateway-configmap
+      - name: taiga-static
+        persistentVolumeClaim:
+          claimName: taiga-static-data
+      - name: taiga-media
+        persistentVolumeClaim:
+          claimName: taiga-media-data
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: taiga-gateway
+  namespace: taiga
+  labels:
+    app.kubernetes.part-of: c4k-taiga
+    app.kubernetes.io/component: taiga-gateway
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/component: taiga-gateway
+  ports:
+  - name: http
+    targetPort: http
+    port: 80
+    protocol: TCP
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: taiga-protected-deployment
+  namespace: taiga
+  labels:
+    app.kubernetes.part-of: c4k-taiga
+    app.kubernetes.io/component: taiga-protected
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: taiga-protected
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: taiga-protected
+    spec:
+      containers:
+      - name: taiga-protected
+        image: taigaio/taiga-protected:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 8003
+        env:
+        - name: MAX_AGE
+          value: '5'
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: taiga-secret
+              key: TAIGA_SECRET_KEY
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: taiga-protected
+  namespace: taiga
+  labels:
+    app.kubernetes.part-of: c4k-taiga
+    app.kubernetes.io/component: taiga-protected
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/component: taiga-protected
+  ports:
+  - name: http
+    targetPort: http
+    port: 8003
+    protocol: TCP
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: taiga-async-rabbitmq-data
+  namespace: taiga
+  labels:
+    app: taiga
+    app.kubernetes.part-of: taiga
+spec:
+  storageClassName: local-path
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 4Gi
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: taiga-events-rabbitmq-data
+  namespace: taiga
+  labels:
+    app: taiga
+    app.kubernetes.part-of: taiga
+spec:
+  storageClassName: local-path
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: taiga-gateway
+  labels:
+    app.kubernetes.part-of: taiga-gateway
+  namespace: taiga
+spec:
+  secretName: taiga-gateway
+  commonName: taiga.test.meissa.de
+  duration: 2160h
+  renewBefore: 720h
+  dnsNames:
+  - taiga.test.meissa.de
+  issuerRef:
+    name: staging
+    kind: ClusterIssuer
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: taiga
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web, websecure
+    traefik.ingress.kubernetes.io/router.middlewares: default-redirect-https@kubernetescrd
+    metallb.universe.tf/address-pool: public
+  name: taiga-gateway
+  labels:
+    app.kubernetes.part-of: taiga-gateway
+spec:
+  tls:
+  - hosts:
+    - taiga.test.meissa.de
+    secretName: taiga-gateway
+  rules:
+  - host: taiga.test.meissa.de
+    http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: taiga-gateway
+            port:
+              number: 80
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backup-config
+  namespace: taiga
+  labels:
+    app.kubernetes.io/name: backup
+    app.kubernetes.io/part-of: taiga
+data:
+  restic-repository: repo-path
+
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: taiga-backup
+  namespace: taiga
+  labels:
+    app.kubernetes.part-of: taiga
+spec:
+  schedule: 10 23 * * *
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: backup-app
+            image: domaindrivenarchitecture/c4k-taiga-backup
+            imagePullPolicy: IfNotPresent
+            command:
+            - backup.bb
+            env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: postgres-user
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: postgres-password
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: postgres-config
+                  key: postgres-db
+            - name: POSTGRES_HOST
+              value: postgresql-service:5432
+            - name: POSTGRES_SERVICE
+              value: postgresql-service
+            - name: POSTGRES_PORT
+              value: '5432'
+            - name: AWS_DEFAULT_REGION
+              value: eu-central-1
+            - name: AWS_ACCESS_KEY_ID_FILE
+              value: /var/run/secrets/backup-secrets/aws-access-key-id
+            - name: AWS_SECRET_ACCESS_KEY_FILE
+              value: /var/run/secrets/backup-secrets/aws-secret-access-key
+            - name: RESTIC_REPOSITORY
+              valueFrom:
+                configMapKeyRef:
+                  name: backup-config
+                  key: restic-repository
+            - name: RESTIC_PASSWORD_FILE
+              value: /var/run/secrets/backup-secrets/restic-password
+            volumeMounts:
+            - name: taiga-media
+              mountPath: /media
+              readOnly: true
+            - name: backup-secret-volume
+              mountPath: /var/run/secrets/backup-secrets
+              readOnly: true
+          volumes:
+          - name: taiga-media
+            persistentVolumeClaim:
+              claimName: taiga-media-data
+          - name: backup-secret-volume
+            secret:
+              secretName: backup-secret
+          restartPolicy: OnFailure
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backup-restore
+  namespace: taiga
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: backup-restore
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: backup-restore
+        app.kubernetes.io/name: backup-restore
+        app.kubernetes.io/part-of: taiga
+    spec:
+      containers:
+      - image: domaindrivenarchitecture/c4k-taiga-backup
+        name: backup-app
+        imagePullPolicy: IfNotPresent
+        command:
+        - wait.bb
+        env:
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: postgres-user
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: postgres-password
+        - name: POSTGRES_DB
+          valueFrom:
+            configMapKeyRef:
+              name: postgres-config
+              key: postgres-db
+        - name: POSTGRES_HOST
+          value: postgresql-service:5432
+        - name: POSTGRES_SERVICE
+          value: postgresql-service
+        - name: POSTGRES_PORT
+          value: '5432'
+        - name: AWS_DEFAULT_REGION
+          value: eu-central-1
+        - name: AWS_ACCESS_KEY_ID_FILE
+          value: /var/run/secrets/backup-secrets/aws-access-key-id
+        - name: AWS_SECRET_ACCESS_KEY_FILE
+          value: /var/run/secrets/backup-secrets/aws-secret-access-key
+        - name: RESTIC_REPOSITORY
+          valueFrom:
+            configMapKeyRef:
+              name: backup-config
+              key: restic-repository
+        - name: RESTIC_PASSWORD_FILE
+          value: /var/run/secrets/backup-secrets/restic-password
+        - name: RESTIC_NEW_PASSWORD_FILE
+          value: /var/run/secrets/backup-secrets/restic-new-password
+        volumeMounts:
+        - name: taiga-media
+          mountPath: /media
+          readOnly: false
+        - name: backup-secret-volume
+          mountPath: /var/run/secrets/backup-secrets
+          readOnly: true
+      volumes:
+      - name: taiga-media
+        persistentVolumeClaim:
+          claimName: taiga-media-data
+      - name: backup-secret-volume
+        secret:
+          secretName: backup-secret
+
+---
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: monitoring
+  labels:
+    name: monitoring
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    name: prometheus
+  name: prometheus
+rules:
+- apiGroups:
+  - ''
+  resources:
+  - nodes
+  - nodes/proxy
+  - nodes/metrics
+  - services
+  - endpoints
+  - pods
+  - ingresses
+  - configmaps
+  - events
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - extensions
+  - networking.k8s.io
+  resources:
+  - ingresses/status
+  - ingresses
+  verbs:
+  - get
+  - list
+  - watch
+- nonResourceURLs:
+  - /metrics
+  verbs:
+  - get
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    name: prometheus
+  name: prometheus
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: prometheus
+subjects:
+- kind: ServiceAccount
+  name: prometheus
+  namespace: monitoring
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: prometheus
+  annotations:
+    metallb.universe.tf/address-pool: private
+spec:
+  type: LoadBalancer
+  selector:
+    app.kubernetes.io/name: prometheus
+  ports:
+  - name: prometheus-http
+    protocol: TCP
+    port: 9000
+    targetPort: 9090
+
+---
+apiVersion: v1
+kind: ServiceAccount
+automountServiceAccountToken: true
+metadata:
+  labels:
+    name: prometheus
+  name: prometheus
+  namespace: monitoring
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/name: prometheus
+  name: prometheus
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: prometheus
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: prometheus
+    spec:
+      serviceAccountName: prometheus
+      enableServiceLinks: true
+      containers:
+      - name: prometheus
+        image: quay.io/prometheus/prometheus:v2.39.1
+        imagePullPolicy: IfNotPresent
+        args:
+        - --config.file=/etc/prometheus/prometheus.yaml
+        - --storage.tsdb.path=/prometheus/
+        - --storage.tsdb.retention.time=1d
+        ports:
+        - containerPort: 9090
+        volumeMounts:
+        - name: prometheus-config-volume
+          mountPath: /etc/prometheus/
+          readOnly: true
+        - name: prometheus-storage-volume
+          mountPath: /prometheus/
+      volumes:
+      - name: prometheus-config-volume
+        secret:
+          secretName: prometheus-conf
+          defaultMode: 420
+      - name: prometheus-storage-volume
+        emptyDir: {}
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    name: node-exporter
+  name: node-exporter
+  namespace: monitoring
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    name: node-exporter
+  name: node-exporter
+rules:
+- apiGroups:
+  - ''
+  resources:
+  - nodes
+  - nodes/proxy
+  - nodes/metrics
+  - services
+  - endpoints
+  - pods
+  - ingresses
+  - configmaps
+  - events
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - extensions
+  - networking.k8s.io
+  resources:
+  - ingresses/status
+  - ingresses
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - extensions
+  resources:
+  - podsecuritypolicies
+  verbs:
+  - use
+  resourceNames:
+  - node-exporter
+- nonResourceURLs:
+  - /metrics
+  verbs:
+  - get
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    name: node-exporter
+  name: node-exporter
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: node-exporter
+subjects:
+- kind: ServiceAccount
+  name: node-exporter
+  namespace: monitoring
+
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    app.kubernetes.io/name: node-exporter
+  name: node-exporter
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: node-exporter
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: node-exporter
+    spec:
+      serviceAccountName: node-exporter
+      containers:
+      - name: node-exporter
+        image: prom/node-exporter
+        imagePullPolicy: IfNotPresent
+        args:
+        - --path.sysfs=/host/sys
+        - --path.rootfs=/host/root
+        - --no-collector.conntrack
+        - --no-collector.wifi
+        - --no-collector.hwmon
+        - --no-collector.infiniband
+        - --no-collector.filefd
+        - --no-collector.mdadm
+        - --no-collector.netclass
+        - --no-collector.nfs
+        - --no-collector.nfsd
+        - --no-collector.powersupplyclass
+        - --no-collector.pressure
+        - --no-collector.rapl
+        - --no-collector.schedstat
+        - --no-collector.sockstat
+        - --no-collector.softnet
+        - --no-collector.tapestats
+        - --no-collector.thermal_zone
+        - --no-collector.xfs
+        - --no-collector.zfs
+        - --collector.filesystem.ignored-mount-points=^/(dev|proc|sys|var/lib/docker/.+|var/lib/kubelet/pods/.+)($|/)
+        - --collector.netclass.ignored-devices=^(veth.*)$
+        ports:
+        - containerPort: 9100
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 250m
+            memory: 180Mi
+          requests:
+            cpu: 102m
+            memory: 180Mi
+        volumeMounts:
+        - mountPath: /host/sys
+          mountPropagation: HostToContainer
+          name: sys
+          readOnly: true
+        - mountPath: /host/root
+          mountPropagation: HostToContainer
+          name: root
+          readOnly: true
+      volumes:
+      - hostPath:
+          path: /sys
+        name: sys
+      - hostPath:
+          path: /
+        name: root
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: node-exporter
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: node-exporter
+  annotations:
+    prometheus.io/scrape: 'true'
+    prometheus.io/port: '9100'
+spec:
+  selector:
+    app.kubernetes.io/name: node-exporter
+  ports:
+  - name: node-exporter-http
+    protocol: TCP
+    port: 9100
+    targetPort: 9100
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/component: exporter
+    app.kubernetes.io/name: kube-state-metrics
+    app.kubernetes.io/version: 2.7.0
+  name: kube-state-metrics
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kube-state-metrics
+subjects:
+- kind: ServiceAccount
+  name: kube-state-metrics
+  namespace: monitoring
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/component: exporter
+    app.kubernetes.io/name: kube-state-metrics
+    app.kubernetes.io/version: 2.7.0
+  name: kube-state-metrics
+rules:
+- apiGroups:
+  - ''
+  resources:
+  - configmaps
+  - secrets
+  - nodes
+  - pods
+  - services
+  - serviceaccounts
+  - resourcequotas
+  - replicationcontrollers
+  - limitranges
+  - persistentvolumeclaims
+  - persistentvolumes
+  - namespaces
+  - endpoints
+  verbs:
+  - list
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - statefulsets
+  - daemonsets
+  - deployments
+  - replicasets
+  verbs:
+  - list
+  - watch
+- apiGroups:
+  - batch
+  resources:
+  - cronjobs
+  - jobs
+  verbs:
+  - list
+  - watch
+- apiGroups:
+  - autoscaling
+  resources:
+  - horizontalpodautoscalers
+  verbs:
+  - list
+  - watch
+- apiGroups:
+  - authentication.k8s.io
+  resources:
+  - tokenreviews
+  verbs:
+  - create
+- apiGroups:
+  - authorization.k8s.io
+  resources:
+  - subjectaccessreviews
+  verbs:
+  - create
+- apiGroups:
+  - policy
+  resources:
+  - poddisruptionbudgets
+  verbs:
+  - list
+  - watch
+- apiGroups:
+  - certificates.k8s.io
+  resources:
+  - certificatesigningrequests
+  verbs:
+  - list
+  - watch
+- apiGroups:
+  - discovery.k8s.io
+  resources:
+  - endpointslices
+  verbs:
+  - list
+  - watch
+- apiGroups:
+  - storage.k8s.io
+  resources:
+  - storageclasses
+  - volumeattachments
+  verbs:
+  - list
+  - watch
+- apiGroups:
+  - admissionregistration.k8s.io
+  resources:
+  - mutatingwebhookconfigurations
+  - validatingwebhookconfigurations
+  verbs:
+  - list
+  - watch
+- apiGroups:
+  - networking.k8s.io
+  resources:
+  - networkpolicies
+  - ingressclasses
+  - ingresses
+  verbs:
+  - list
+  - watch
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - list
+  - watch
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - clusterrolebindings
+  - clusterroles
+  - rolebindings
+  - roles
+  verbs:
+  - list
+  - watch
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/component: exporter
+    app.kubernetes.io/name: kube-state-metrics
+    app.kubernetes.io/version: 2.7.0
+  name: kube-state-metrics
+  namespace: monitoring
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kube-state-metrics
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: exporter
+        app.kubernetes.io/name: kube-state-metrics
+        app.kubernetes.io/version: 2.7.0
+    spec:
+      serviceAccountName: kube-state-metrics
+      automountServiceAccountToken: true
+      containers:
+      - name: kube-state-metrics
+        image: registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.7.0
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 5
+          timeoutSeconds: 5
+        ports:
+        - containerPort: 8080
+          name: http-metrics
+        - containerPort: 8081
+          name: telemetry
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8081
+          initialDelaySeconds: 5
+          timeoutSeconds: 5
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsUser: 65534
+      nodeSelector:
+        kubernetes.io/os: linux
+
+---
+apiVersion: v1
+automountServiceAccountToken: false
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/component: exporter
+    app.kubernetes.io/name: kube-state-metrics
+    app.kubernetes.io/version: 2.7.0
+  name: kube-state-metrics
+  namespace: monitoring
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/component: exporter
+    app.kubernetes.io/name: kube-state-metrics
+    app.kubernetes.io/version: 2.7.0
+  name: kube-state-metrics
+  namespace: monitoring
+spec:
+  clusterIP: None
+  ports:
+  - name: http-metrics
+    port: 8080
+    targetPort: http-metrics
+  - name: telemetry
+    port: 8081
+    targetPort: telemetry
+  selector:
+    app.kubernetes.io/name: kube-state-metrics
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-secret
+  namespace: taiga
+type: Opaque
+data:
+  postgres-user: dGFpZ2E=
+  postgres-password: dGFpZ2EtZGItcGFzc3dvcmQ=
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: taiga-secret
+  namespace: taiga
+  labels:
+    app.kubernetes.part-of: taiga
+data:
+  TAIGA_SECRET_KEY: c29tZS1rZXk=
+  EMAIL_HOST_USER: bWFpbGVyLXVzZXI=
+  EMAIL_HOST_PASSWORD: bWFpbGVyLXB3
+  RABBITMQ_USER: cmFiYml0LXVzZXI=
+  RABBITMQ_PASS: cmFiYml0LXB3
+  RABBITMQ_ERLANG_COOKIE: cmFiYml0LWVybGFuZw==
+  DJANGO_SUPERUSER_USERNAME: dGFpZ2EtYWRtaW4=
+  DJANGO_SUPERUSER_PASSWORD: c3VwZXItcGFzc3dvcmQ=
+  DJANGO_SUPERUSER_EMAIL: c29tZUBleGFtcGxlLmNvbQ==
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: backup-secret
+  namespace: taiga
+type: Opaque
+data:
+  aws-access-key-id: QVdTX0tFWV9JRA==
+  aws-secret-access-key: QVdTX0tFWV9TRUNSRVQ=
+  restic-password: ''
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: prometheus-conf
+  namespace: monitoring
+type: Opaque
+stringData:
+  prometheus.yaml: |
+    global:
+      scrape_interval: 60s
+      evaluation_interval: 60s
+      external_labels:
+        cluster: jitsi
+        stage: test
+    remote_write:
+    - url: url-for-your-prom-remote-write-endpoint
+      basic_auth:
+        username: user
+        password: password
+      write_relabel_configs:
+      - source_labels:
+        - __name__
+        regex: node_cpu_sec.+|node_load[0-9]+|node_memory_Buf.*|node_memory_Mem.*|node_memory_Cached.*|node_disk_[r,w,i].*|node_filesystem_[s,a].*|node_network_receive_bytes_total|node_network_transmit_bytes_total|traefik_entrypoint_.*_total|traefik_entrypoint_.*_seconds_count|traefik_router_.*_total|traefik_router_.*_seconds_count|traefik_service_.*_total|traefik_service_.*_seconds_count|traefik_tls_certs_not_after|kube_pod_container_status_restarts_total|kube_pod_status_reason|kube_node_status_capacity|kube_node_status_allocatable|kube_cronjob_status_active|kube_job_status_failed
+        action: keep
+    rule_files:
+    - /etc/prometheus/prometheus.rules
+    scrape_configs:
+    - job_name: kubernetes-nodes
+      kubernetes_sd_configs:
+      - role: node
+      scheme: https
+      tls_config:
+        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+      relabel_configs:
+      - action: labelmap
+        regex: __meta_kubernetes_node_label_(.+)
+      - target_label: __address__
+        replacement: kubernetes.default.svc:443
+      - source_labels:
+        - __meta_kubernetes_node_name
+        regex: (.+)
+        target_label: __metrics_path__
+        replacement: /api/v1/nodes/${1}/proxy/metrics
+    - job_name: node-exporter
+      kubernetes_sd_configs:
+      - role: endpoints
+      relabel_configs:
+      - source_labels:
+        - __meta_kubernetes_endpoints_name
+        regex: node-exporter
+        action: keep
+    - job_name: traefik
+      kubernetes_sd_configs:
+      - role: endpoints
+      relabel_configs:
+      - source_labels:
+        - __meta_kubernetes_endpoints_name
+        regex: traefik
+        action: keep
+    - job_name: kube-state-metrics
+      kubernetes_sd_configs:
+      - role: endpoints
+      relabel_configs:
+      - source_labels:
+        - __meta_kubernetes_endpoints_name
+        regex: kube-state-metrics
+        action: keep
+    - job_name: prometheus
+      static_configs:
+      - targets:
+        - localhost:9090
+
