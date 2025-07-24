@@ -1,14 +1,12 @@
 (ns dda.c4k-taiga.taiga
   (:require
    [clojure.spec.alpha :as s]
-   #?(:clj [orchestra.core :refer [defn-spec]]
-      :cljs [orchestra.core :refer-macros [defn-spec]])
+   [orchestra.core :refer [defn-spec]]
    [dda.c4k-common.yaml :as yaml]
    [dda.c4k-common.ingress :as ing]
    [dda.c4k-common.base64 :as b64]
    [dda.c4k-common.predicate :as p]
-   [dda.c4k-common.common :as cm]
-   #?(:cljs [dda.c4k-common.macros :refer-macros [inline-resources]])))
+   [dda.c4k-common.common :as cm]))
 
 (s/def ::taiga-secret-key p/bash-env-string?)
 (s/def ::mailer-user string?)
@@ -51,10 +49,6 @@
                                  ::public-register-enabled
                                  ::enable-telemetry
                                  ::mon-cfg]))
-
-#?(:cljs
-   (defmethod yaml/load-resource :taiga [resource-name]
-     (get (inline-resources "taiga") resource-name)))
 
 (defn-spec generate-ingress-and-cert p/map-or-seq?
   [config ::config]

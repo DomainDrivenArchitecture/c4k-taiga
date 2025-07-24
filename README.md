@@ -12,14 +12,6 @@ Easily generate a config for a small scale Taiga deployment. Complete with initi
 
 Ready for production. We are about to migrate to taiga on our own servers.
 
-## Try out
-
-Click on the image to try out live in your browser:
-
-[![Try it out](doc/tryItOut.png "Try out yourself")](https://domaindrivenarchitecture.org/pages/dda-provision/c4k-taiga/)
-
-Your input will stay in your browser. No server interaction is required.
-
 ## Usage
 
 To generate your configuration:
