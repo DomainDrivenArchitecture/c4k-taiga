@@ -3,7 +3,6 @@
    [clojure.spec.alpha :as s]
    [orchestra.core :refer [defn-spec]]
    [dda.c4k-common.yaml :as yaml]
-   [dda.c4k-common.ingress :as ing]
    [dda.c4k-common.base64 :as b64]
    [dda.c4k-common.predicate :as p]
    [dda.c4k-common.common :as cm]))
@@ -49,16 +48,6 @@
                                  ::public-register-enabled
                                  ::enable-telemetry
                                  ::mon-cfg]))
-
-(defn-spec generate-ingress-and-cert p/map-or-seq?
-  [config ::config]
-  (let [{:keys [fqdn]} config]
-    (ing/generate-ingress-and-cert
-     (merge
-      {:service-name "taiga-gateway"
-       :service-port 80
-       :fqdns [fqdn]}
-      config))))
 
 (defn-spec generate-async-deployment p/map-or-seq? []
   (yaml/load-as-edn "taiga/async-deployment.yaml"))

@@ -55,7 +55,7 @@ def test_schema(project):
         f"java -jar target/uberjar/{name}-standalone.jar "
         + f"src/test/resources/{base_name}-test/valid-config.yaml "
         + f"src/test/resources/{base_name}-test/valid-auth.yaml | "
-        + "kubeconform --kubernetes-version 1.23.0 --strict --skip Certificate -",
+        + """kubeconform --kubernetes-version 1.23.0 --strict --skip "Certificate,Middleware" -""",
         shell=True,
         check=True,
     )

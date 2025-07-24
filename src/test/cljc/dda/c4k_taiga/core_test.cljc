@@ -10,12 +10,12 @@
   (is (s/valid? cut/auth? (yaml/load-as-edn "taiga-test/valid-auth.yaml"))))
 
 (deftest test-whole-generation 
-  (is (= 49
+  (is (= 53
          (count 
-          (cut/config-objects 
+          (cut/config-objects []
            (yaml/load-as-edn "taiga-test/valid-config.yaml")))))
   (is (= 4
          (count
-          (cut/auth-objects 
+          (cut/auth-objects []
            (yaml/load-as-edn "taiga-test/valid-config.yaml")
            (yaml/load-as-edn "taiga-test/valid-auth.yaml"))))))
