@@ -23,7 +23,7 @@
                       :public-register-enabled "false"
                       :enable-telemetry "false"})
 
-(def config? (s/merge
+(s/def ::config (s/merge
               ::backup/config
               (s/keys :req-un [::taiga/fqdn]
                       :opt-un [::taiga/issuer
@@ -37,7 +37,7 @@
                                ::postgres/pv-storage-size-gb
                                ::mon/mon-cfg])))
 
-(def auth? (s/merge
+(s/def ::auth (s/merge
             ::backup/auth
             (s/keys :req-un [::postgres/postgres-db-user
                              ::postgres/postgres-db-password
@@ -56,7 +56,7 @@
 
 (defn-spec config-objects cp/map-or-seq?
   [config-select ::config-select
-   config config?]
+   config ::config]
   (let [resolved-config (merge config-defaults config)
         {:keys [fqdn]} resolved-config
         config-parts (if (empty? config-select)
@@ -107,8 +107,8 @@
 
 (defn-spec auth-objects cp/map-or-seq?
   [config-select ::config-select
-   config config?
-   auth auth?]
+   config ::config
+   auth ::auth]
   (let [resolved-config (merge config-defaults config)
         config-parts (if (empty? config-select)
                        ["auth" "deployment"]

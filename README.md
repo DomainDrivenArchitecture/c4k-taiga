@@ -19,7 +19,7 @@ To generate your configuration:
 1. Create an auth.yaml and a config.yaml
 
 You can find examples in src/test/resources/taiga-test in this repository.
-Please check the ```def auth?``` and ```def config?``` definitions in src/main/cljc/dda/c4k_taiga/taiga.cljc
+Please check the ```def ::auth``` and ```def::config``` definitions in src/main/cljc/dda/c4k_taiga/taiga.cljc
 for required and optional values. When you plan to use the dda_backup solution, you also need the keys:
 
 - aws-access-key-id: "AWS_KEY_ID"

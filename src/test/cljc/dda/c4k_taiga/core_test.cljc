@@ -6,8 +6,8 @@
    [dda.c4k-taiga.core :as cut]))
 
 (deftest validate-valid-resources
-  (is (s/valid? cut/config? (yaml/load-as-edn "taiga-test/valid-config.yaml")))
-  (is (s/valid? cut/auth? (yaml/load-as-edn "taiga-test/valid-auth.yaml"))))
+  (is (s/valid? ::cut/config (yaml/load-as-edn "taiga-test/valid-config.yaml")))
+  (is (s/valid? ::cut/auth (yaml/load-as-edn "taiga-test/valid-auth.yaml"))))
 
 (deftest test-whole-generation 
   (is (= 53
