@@ -6,7 +6,7 @@ from ddadevops import *
 name = "c4k-taiga"
 MODULE = "backup"
 PROJECT_ROOT_PATH = "../.."
-version = "1.2.7-dev"
+version = "2.0.0"
 
 
 @init
