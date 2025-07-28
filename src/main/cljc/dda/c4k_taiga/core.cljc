@@ -102,7 +102,7 @@
                 (backup/generate-cron)
                 (backup/generate-backup-restore-deployment resolved-config)])
              (when (:contains? resolved-config :mon-cfg)
-               (mon/config-objects resolved-config)))
+               (mon/config-objects (:mon-cfg resolved-config))))
             [])))))
 
 (defn-spec auth-objects cp/map-or-seq?
